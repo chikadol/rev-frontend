@@ -12,27 +12,42 @@ function App() {
         setMessage(null);
 
         if (!email || !password) {
-            setMessage("이메일과 비밀번호를 모두 입력해줘!");
+            setMessage("이메일과 비밀번호를 입력해줘!");
             return;
         }
 
         try {
             setIsSubmitting(true);
 
-            // 지금은 테스트용
-            console.log("로그인 시도:", { email, password });
+            const res = await fetch("http://localhost:8080/auth/login", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ email, password }),
+            });
 
-            // 가짜 성공 응답
-            setTimeout(() => {
-                setMessage("🎉 (임시) 로그인 성공 처리! 이제 API 연동만 하면 돼.");
+            if (!res.ok) {
+                setMessage("로그인 실패! 이메일 또는 비밀번호를 확인해줘.");
                 setIsSubmitting(false);
-            }, 500);
-        } catch (e) {
-            console.error(e);
-            setMessage("알 수 없는 오류가 발생했어. 잠시 후 다시 시도해줘.");
+                return;
+            }
+
+            const data = await res.json();
+
+            // JWT 저장
+            localStorage.setItem("accessToken", data.accessToken);
+            localStorage.setItem("refreshToken", data.refreshToken);
+
+            setMessage("🎉 로그인 성공! 토큰이 저장되었습니다.");
+            setIsSubmitting(false);
+        } catch (error) {
+            console.error(error);
+            setMessage("서버와 연결할 수 없습니다.");
             setIsSubmitting(false);
         }
     };
+
 
     return (
         <div className="app-root">
