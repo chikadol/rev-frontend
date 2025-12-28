@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { apiClient } from "../lib/api";
 
 export default function Login() {
@@ -80,6 +80,16 @@ export default function Login() {
                     {loading ? "로그인 중..." : "로그인"}
                 </button>
             </form>
+
+            <div style={{ marginTop: "1.5rem", textAlign: "center" }}>
+                <span style={{ color: "#7f8c8d" }}>계정이 없으신가요? </span>
+                <Link 
+                    to="/register" 
+                    style={{ color: "#3498db", textDecoration: "none", fontWeight: "500" }}
+                >
+                    회원가입
+                </Link>
+            </div>
         </div>
     );
 }

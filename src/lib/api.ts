@@ -20,6 +20,12 @@ export interface LoginRequest {
   password: string;
 }
 
+export interface RegisterRequest {
+  email: string;
+  username: string;
+  password: string;
+}
+
 export interface TokenResponse {
   accessToken: string;
   refreshToken: string;
@@ -90,6 +96,14 @@ class ApiClient {
   }
 
   // Auth
+  async register(credentials: RegisterRequest): Promise<TokenResponse> {
+    console.log('회원가입 요청:', credentials);
+    return this.request<TokenResponse>('/auth/register', {
+      method: 'POST',
+      body: JSON.stringify(credentials),
+    });
+  }
+
   async login(credentials: LoginRequest): Promise<TokenResponse> {
     console.log('로그인 요청:', credentials);
     return this.request<TokenResponse>('/auth/login', {

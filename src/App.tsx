@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import Layout from './components/Layout';
 import Home from './pages/Home';
 import Login from './pages/Login';
+import Register from './pages/Register';
 import BoardPage from './pages/BoardPage';
 import ThreadDetailPage from './pages/ThreadDetailPage';
 import CreateThreadPage from './pages/CreateThreadPage';
@@ -20,6 +21,7 @@ function App() {
             <Layout>
                 <Routes>
                     <Route path="/login" element={<Login />} />
+                    <Route path="/register" element={<Register />} />
                     <Route path="/" element={<Home />} />
                     <Route path="/boards/:boardId" element={<BoardPage />} />
                     <Route path="/boards/:boardId/threads/new" element={
