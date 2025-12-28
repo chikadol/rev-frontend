@@ -132,6 +132,13 @@ class ApiClient {
     return this.request<Board>(`/api/boards/${id}`);
   }
 
+  async createBoard(data: { name: string; slug: string; description?: string }): Promise<Board> {
+    return this.request<Board>('/api/boards', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
   // Threads
   async getThreads(
     boardId: string,

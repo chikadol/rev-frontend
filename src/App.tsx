@@ -4,6 +4,7 @@ import Home from './pages/Home';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import BoardPage from './pages/BoardPage';
+import CreateBoardPage from './pages/CreateBoardPage';
 import ThreadDetailPage from './pages/ThreadDetailPage';
 import CreateThreadPage from './pages/CreateThreadPage';
 import MePage from './pages/MePage';
@@ -23,6 +24,11 @@ function App() {
                     <Route path="/login" element={<Login />} />
                     <Route path="/register" element={<Register />} />
                     <Route path="/" element={<Home />} />
+                    <Route path="/boards/new" element={
+                        <PrivateRoute>
+                            <CreateBoardPage />
+                        </PrivateRoute>
+                    } />
                     <Route path="/boards/:boardId" element={<BoardPage />} />
                     <Route path="/boards/:boardId/threads/new" element={
                         <PrivateRoute>

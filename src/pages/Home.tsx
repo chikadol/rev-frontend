@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { apiClient } from '../lib/api';
 import type { Board } from '../types';
 
 export default function Home() {
+    const navigate = useNavigate();
     const [boards, setBoards] = useState<Board[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -65,7 +66,24 @@ export default function Home() {
 
     return (
         <div>
-            <h1>게시판 목록</h1>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
+                <h1 style={{ margin: 0 }}>게시판 목록</h1>
+                <button
+                    onClick={() => navigate('/boards/new')}
+                    style={{
+                        padding: '0.75rem 1.5rem',
+                        background: '#27ae60',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '4px',
+                        cursor: 'pointer',
+                        fontSize: '1rem',
+                        fontWeight: '500'
+                    }}
+                >
+                    + 게시판 생성
+                </button>
+            </div>
             {boards.length === 0 ? (
                 <div style={{
                     padding: '3rem',
@@ -74,7 +92,22 @@ export default function Home() {
                     marginTop: '2rem'
                 }}>
                     <p style={{ fontSize: '1.1rem', marginBottom: '0.5rem' }}>등록된 게시판이 없습니다.</p>
-                    <p style={{ fontSize: '0.9rem' }}>게시판을 생성하려면 관리자에게 문의하세요.</p>
+                    <p style={{ fontSize: '0.9rem', marginBottom: '1rem' }}>첫 번째 게시판을 만들어보세요!</p>
+                    <button
+                        onClick={() => navigate('/boards/new')}
+                        style={{
+                            padding: '0.75rem 1.5rem',
+                            background: '#27ae60',
+                            color: 'white',
+                            border: 'none',
+                            borderRadius: '4px',
+                            cursor: 'pointer',
+                            fontSize: '1rem',
+                            fontWeight: '500'
+                        }}
+                    >
+                        게시판 생성하기
+                    </button>
                 </div>
             ) : (
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '1rem', marginTop: '2rem' }}>
