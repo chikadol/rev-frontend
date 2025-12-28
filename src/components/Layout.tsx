@@ -20,7 +20,12 @@ export default function Layout({ children }: LayoutProps) {
     if (token) {
       apiClient.getUnreadNotificationCount()
         .then(res => setUnreadCount(res.unreadCount))
-        .catch(() => {});
+        .catch((err) => {
+          // 알림 카운트 로드 실패 시 무시 (알림 기능이 없거나 서버 에러)
+          // 인증 에러가 아닌 경우에는 토큰을 유지하고 계속 진행
+          console.warn('알림 카운트 로드 실패 (무시됨):', err);
+          setUnreadCount(0);
+        });
     } else {
       setUnreadCount(0);
     }
