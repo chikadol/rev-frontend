@@ -57,8 +57,24 @@ class ApiClient {
       });
 
       if (!response.ok) {
-        const error = await response.text();
-        throw new Error(error || `HTTP error! status: ${response.status}`);
+        const errorText = await response.text();
+        let errorMessage = errorText || `HTTP error! status: ${response.status}`;
+        
+        // JSON 형식의 에러 응답 파싱 시도
+        try {
+          const errorJson = JSON.parse(errorText);
+          console.error('API 에러 응답:', errorJson);
+          if (errorJson.message) {
+            errorMessage = errorJson.message;
+          } else if (errorJson.error) {
+            errorMessage = errorJson.error;
+          }
+        } catch {
+          // JSON 파싱 실패 시 원본 텍스트 사용
+          console.error('API 에러 응답 (텍스트):', errorText);
+        }
+        
+        throw new Error(errorMessage);
       }
 
       return response.json();
@@ -75,6 +91,7 @@ class ApiClient {
 
   // Auth
   async login(credentials: LoginRequest): Promise<TokenResponse> {
+    console.log('로그인 요청:', credentials);
     return this.request<TokenResponse>('/auth/login', {
       method: 'POST',
       body: JSON.stringify(credentials),

@@ -24,7 +24,16 @@ export default function Login() {
             navigate("/");
         } catch (err: any) {
             console.error("로그인 실패:", err);
-            setError(err.message || "로그인에 실패했습니다.");
+            let errorMessage = err.message || "로그인에 실패했습니다.";
+            
+            // 영어 에러 메시지를 한국어로 변환
+            if (errorMessage.includes("Invalid credentials")) {
+                errorMessage = "이메일 또는 비밀번호가 올바르지 않습니다.";
+            } else if (errorMessage.includes("Invalid")) {
+                errorMessage = "입력 정보가 올바르지 않습니다.";
+            }
+            
+            setError(errorMessage);
         } finally {
             setLoading(false);
         }
