@@ -14,6 +14,7 @@ import type {
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080';
 
+
 export interface LoginRequest {
   email: string;
   password: string;
@@ -49,17 +50,27 @@ class ApiClient {
       Object.assign(headers, options.headers);
     }
 
-    const response = await fetch(`${this.baseUrl}${endpoint}`, {
-      ...options,
-      headers,
-    });
+    try {
+      const response = await fetch(`${this.baseUrl}${endpoint}`, {
+        ...options,
+        headers,
+      });
 
-    if (!response.ok) {
-      const error = await response.text();
-      throw new Error(error || `HTTP error! status: ${response.status}`);
+      if (!response.ok) {
+        const error = await response.text();
+        throw new Error(error || `HTTP error! status: ${response.status}`);
+      }
+
+      return response.json();
+    } catch (error: any) {
+      // 네트워크 에러 처리 (Failed to fetch 등)
+      if (error.message === 'Failed to fetch' || error.name === 'TypeError') {
+        throw new Error(
+          `서버에 연결할 수 없습니다. 백엔드 서버(${this.baseUrl})가 실행 중인지 확인해주세요.`
+        );
+      }
+      throw error;
     }
-
-    return response.json();
   }
 
   // Auth
@@ -222,3 +233,4 @@ class ApiClient {
 }
 
 export const apiClient = new ApiClient(API_BASE_URL);
+
