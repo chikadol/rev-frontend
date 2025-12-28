@@ -9,6 +9,10 @@ import ThreadDetailPage from './pages/ThreadDetailPage';
 import CreateThreadPage from './pages/CreateThreadPage';
 import MePage from './pages/MePage';
 import NotificationsPage from './pages/NotificationsPage';
+import PerformancesPage from './pages/PerformancesPage';
+import PerformanceDetailPage from './pages/PerformanceDetailPage';
+import MyTicketsPage from './pages/MyTicketsPage';
+import PaymentPage from './pages/PaymentPage';
 import './App.css';
 
 function PrivateRoute({ children }: { children: React.ReactNode }) {
@@ -23,7 +27,8 @@ function App() {
                 <Routes>
                     <Route path="/login" element={<Login />} />
                     <Route path="/register" element={<Register />} />
-                    <Route path="/" element={<Home />} />
+                    <Route path="/" element={<PerformancesPage />} />
+                    <Route path="/boards" element={<Home />} />
                     <Route path="/boards/new" element={
                         <PrivateRoute>
                             <CreateBoardPage />
@@ -44,6 +49,18 @@ function App() {
                     <Route path="/notifications" element={
                         <PrivateRoute>
                             <NotificationsPage />
+                        </PrivateRoute>
+                    } />
+                    <Route path="/performances" element={<PerformancesPage />} />
+                    <Route path="/performances/:id" element={<PerformanceDetailPage />} />
+                    <Route path="/my-tickets" element={
+                        <PrivateRoute>
+                            <MyTicketsPage />
+                        </PrivateRoute>
+                    } />
+                    <Route path="/tickets/:ticketId/payment" element={
+                        <PrivateRoute>
+                            <PaymentPage />
                         </PrivateRoute>
                     } />
                 </Routes>

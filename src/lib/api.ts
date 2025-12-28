@@ -10,6 +10,9 @@ import type {
   PageResponse,
   ToggleReactionResponse,
   BookmarkCountResponse,
+  Performance,
+  Ticket,
+  Payment,
 } from '../types';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080';
@@ -269,6 +272,59 @@ class ApiClient {
   async getMyComments(page: number = 0, size: number = 20): Promise<PageResponse<MyComment>> {
     const params = new URLSearchParams({ page: page.toString(), size: size.toString() });
     return this.request<PageResponse<MyComment>>(`/api/me/comments?${params.toString()}`);
+  }
+
+  // Performances
+  async getPerformances(): Promise<Performance[]> {
+    return this.request<Performance[]>('/api/performances');
+  }
+
+  async getUpcomingPerformances(): Promise<Performance[]> {
+    return this.request<Performance[]>('/api/performances/upcoming');
+  }
+
+  async getPerformance(id: string): Promise<Performance> {
+    return this.request<Performance>(`/api/performances/${id}`);
+  }
+
+  // Tickets
+  async purchaseTicket(data: {
+    performanceId: string;
+    quantity?: number;
+    seatNumber?: string;
+  }): Promise<Ticket> {
+    return this.request<Ticket>('/api/tickets/purchase', {
+      method: 'POST',
+      body: JSON.stringify({
+        performanceId: data.performanceId,
+        quantity: data.quantity || 1,
+        seatNumber: data.seatNumber,
+      }),
+    });
+  }
+
+  async getMyTickets(page: number = 0, size: number = 20): Promise<PageResponse<Ticket>> {
+    const params = new URLSearchParams({ page: page.toString(), size: size.toString() });
+    return this.request<PageResponse<Ticket>>(`/api/tickets/my?${params.toString()}`);
+  }
+
+  async getTicket(id: string): Promise<Ticket> {
+    return this.request<Ticket>(`/api/tickets/${id}`);
+  }
+
+  // Payments
+  async createPayment(data: {
+    ticketId: string;
+    paymentMethod: 'NAVER_PAY' | 'TOSS' | 'KAKAO_PAY';
+  }): Promise<Payment> {
+    return this.request<Payment>('/api/payments', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async getPaymentByTicketId(ticketId: string): Promise<Payment | null> {
+    return this.request<Payment | null>(`/api/payments/ticket/${ticketId}`);
   }
 }
 

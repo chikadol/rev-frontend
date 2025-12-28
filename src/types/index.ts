@@ -93,3 +93,37 @@ export interface BookmarkCountResponse {
   count: number;
 }
 
+// Ticket Types
+export interface Performance {
+  id: string;
+  title: string;
+  description?: string;
+  venue: string;
+  performanceDateTime: string;
+  price: number;
+  totalSeats: number;
+  remainingSeats: number;
+  imageUrl?: string;
+  status: 'UPCOMING' | 'ONGOING' | 'ENDED';
+}
+
+export interface Ticket {
+  id: string;
+  performanceId: string;
+  performanceTitle: string;
+  performanceDateTime: string;
+  venue: string;
+  price: number;
+  seatNumber?: string;
+  status: 'PENDING' | 'CONFIRMED' | 'CANCELLED';
+  purchaseDate?: string;
+}
+
+export interface Payment {
+  id: string;
+  ticketId: string;
+  amount: number;
+  paymentMethod: 'NAVER_PAY' | 'TOSS' | 'KAKAO_PAY';
+  status: 'PENDING' | 'COMPLETED' | 'FAILED' | 'CANCELLED';
+}
+

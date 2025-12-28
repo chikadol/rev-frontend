@@ -1,4 +1,4 @@
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { apiClient } from '../lib/api';
 import '../index.css';
@@ -9,6 +9,7 @@ interface LayoutProps {
 
 export default function Layout({ children }: LayoutProps) {
   const navigate = useNavigate();
+  const location = useLocation();
   const [unreadCount, setUnreadCount] = useState(0);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
@@ -20,8 +21,10 @@ export default function Layout({ children }: LayoutProps) {
       apiClient.getUnreadNotificationCount()
         .then(res => setUnreadCount(res.unreadCount))
         .catch(() => {});
+    } else {
+      setUnreadCount(0);
     }
-  }, []);
+  }, [location.pathname]); // location이 변경될 때마다 인증 상태 확인
 
   const handleLogout = () => {
     localStorage.removeItem('accessToken');
@@ -46,7 +49,7 @@ export default function Layout({ children }: LayoutProps) {
         backdropFilter: 'blur(10px)',
         backgroundColor: 'rgba(255, 255, 255, 0.9)'
       }}>
-        <Link to="/" style={{ 
+        <Link to="/performances" style={{ 
           color: 'var(--color-text)', 
           textDecoration: 'none', 
           fontSize: '1.5rem', 
@@ -57,9 +60,21 @@ export default function Layout({ children }: LayoutProps) {
         </Link>
         
         <nav style={{ display: 'flex', gap: 'var(--spacing-lg)', alignItems: 'center' }}>
+          <Link to="/performances" style={{ 
+            color: 'var(--color-text-secondary)', 
+            textDecoration: 'none',
+            fontSize: '0.9375rem',
+            fontWeight: '500',
+            transition: 'color 0.2s ease'
+          }}
+          onMouseEnter={(e) => e.currentTarget.style.color = 'var(--color-text)'}
+          onMouseLeave={(e) => e.currentTarget.style.color = 'var(--color-text-secondary)'}
+          >
+            공연
+          </Link>
           {isAuthenticated ? (
             <>
-              <Link to="/" style={{ 
+              <Link to="/boards" style={{ 
                 color: 'var(--color-text-secondary)', 
                 textDecoration: 'none',
                 fontSize: '0.9375rem',
@@ -70,6 +85,18 @@ export default function Layout({ children }: LayoutProps) {
               onMouseLeave={(e) => e.currentTarget.style.color = 'var(--color-text-secondary)'}
               >
                 게시판
+              </Link>
+              <Link to="/my-tickets" style={{ 
+                color: 'var(--color-text-secondary)', 
+                textDecoration: 'none',
+                fontSize: '0.9375rem',
+                fontWeight: '500',
+                transition: 'color 0.2s ease'
+              }}
+              onMouseEnter={(e) => e.currentTarget.style.color = 'var(--color-text)'}
+              onMouseLeave={(e) => e.currentTarget.style.color = 'var(--color-text-secondary)'}
+              >
+                내 티켓
               </Link>
               <Link to="/me" style={{ 
                 color: 'var(--color-text-secondary)', 

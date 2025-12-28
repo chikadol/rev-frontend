@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { apiClient } from '../lib/api';
 import type { MeOverview, BookmarkedThread, MyComment, PageResponse } from '../types';
 
 export default function MePage() {
+  const navigate = useNavigate();
   const [overview, setOverview] = useState<MeOverview | null>(null);
   const [bookmarks, setBookmarks] = useState<BookmarkedThread[]>([]);
   const [bookmarksPage, setBookmarksPage] = useState<PageResponse<BookmarkedThread> | null>(null);
@@ -19,9 +20,15 @@ export default function MePage() {
       .then(setOverview)
       .catch((err) => {
         console.error('내 정보 로드 실패:', err);
-      });
-    setLoading(false);
-  }, []);
+        // 인증 에러인 경우 로그인 페이지로 리다이렉트
+        if (err.message?.includes('인증이 필요') || err.message?.includes('Unauthorized')) {
+          localStorage.removeItem('accessToken');
+          localStorage.removeItem('refreshToken');
+          navigate('/login');
+        }
+      })
+      .finally(() => setLoading(false));
+  }, [navigate]);
 
   useEffect(() => {
     if (activeTab === 'bookmarks') {
@@ -32,9 +39,14 @@ export default function MePage() {
         })
         .catch((err) => {
           console.error('북마크 로드 실패:', err);
+          if (err.message?.includes('인증이 필요') || err.message?.includes('Unauthorized')) {
+            localStorage.removeItem('accessToken');
+            localStorage.removeItem('refreshToken');
+            navigate('/login');
+          }
         });
     }
-  }, [activeTab, bookmarksPageNum]);
+  }, [activeTab, bookmarksPageNum, navigate]);
 
   useEffect(() => {
     if (activeTab === 'comments') {
@@ -45,9 +57,14 @@ export default function MePage() {
         })
         .catch((err) => {
           console.error('댓글 로드 실패:', err);
+          if (err.message?.includes('인증이 필요') || err.message?.includes('Unauthorized')) {
+            localStorage.removeItem('accessToken');
+            localStorage.removeItem('refreshToken');
+            navigate('/login');
+          }
         });
     }
-  }, [activeTab, commentsPageNum]);
+  }, [activeTab, commentsPageNum, navigate]);
 
   if (loading) {
     return (
