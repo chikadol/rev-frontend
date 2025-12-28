@@ -27,121 +27,212 @@ export default function BoardPage() {
   }, [boardId, page, selectedTags]);
 
   if (loading) {
-    return <div>로딩 중...</div>;
+    return (
+      <div style={{ 
+        display: 'flex', 
+        justifyContent: 'center', 
+        alignItems: 'center', 
+        minHeight: '400px',
+        color: 'var(--color-text-secondary)'
+      }}>
+        로딩 중...
+      </div>
+    );
   }
 
   if (!board || !threads) {
-    return <div>게시판을 찾을 수 없습니다.</div>;
+    return (
+      <div className="card" style={{ textAlign: 'center', padding: 'var(--spacing-2xl)' }}>
+        <p style={{ color: 'var(--color-text-secondary)', fontSize: '1.125rem' }}>
+          게시판을 찾을 수 없습니다.
+        </p>
+      </div>
+    );
   }
 
   return (
     <div>
-      <div style={{ marginBottom: '2rem' }}>
-        <Link to="/" style={{ color: '#3498db', textDecoration: 'none' }}>← 게시판 목록</Link>
-        <h1 style={{ marginTop: '1rem' }}>{board.name}</h1>
-        {board.description && <p style={{ color: '#7f8c8d' }}>{board.description}</p>}
-      </div>
-
-      <div style={{ marginBottom: '1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <Link
-          to={`/boards/${boardId}/threads/new`}
-          style={{
-            background: '#3498db',
-            color: 'white',
-            padding: '0.75rem 1.5rem',
-            borderRadius: '4px',
+      <div style={{ marginBottom: 'var(--spacing-xl)' }}>
+        <Link 
+          to="/" 
+          style={{ 
+            color: 'var(--color-text-secondary)', 
             textDecoration: 'none',
-            display: 'inline-block'
+            fontSize: '0.9375rem',
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: 'var(--spacing-sm)',
+            marginBottom: 'var(--spacing-md)'
           }}
         >
-          새 글 작성
+          ← 게시판 목록
+        </Link>
+        <h1 style={{ 
+          margin: '0 0 var(--spacing-sm) 0',
+          fontSize: '2rem',
+          fontWeight: '700',
+          letterSpacing: '-0.02em'
+        }}>
+          {board.name}
+        </h1>
+        {board.description && (
+          <p style={{ 
+            margin: 0,
+            color: 'var(--color-text-secondary)', 
+            fontSize: '0.9375rem'
+          }}>
+            {board.description}
+          </p>
+        )}
+      </div>
+
+      <div style={{ 
+        marginBottom: 'var(--spacing-lg)', 
+        display: 'flex', 
+        justifyContent: 'space-between', 
+        alignItems: 'center' 
+      }}>
+        <Link
+          to={`/boards/${boardId}/threads/new`}
+          className="btn btn-primary"
+        >
+          + 새 글 작성
         </Link>
       </div>
 
-      <div style={{ border: '1px solid #ddd', borderRadius: '8px', overflow: 'hidden' }}>
-        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-          <thead style={{ background: '#f8f9fa' }}>
-            <tr>
-              <th style={{ padding: '1rem', textAlign: 'left', borderBottom: '2px solid #ddd' }}>제목</th>
-              <th style={{ padding: '1rem', textAlign: 'left', borderBottom: '2px solid #ddd' }}>작성자</th>
-              <th style={{ padding: '1rem', textAlign: 'left', borderBottom: '2px solid #ddd' }}>작성일</th>
-            </tr>
-          </thead>
-          <tbody>
-            {threads.content.map(thread => (
-              <tr key={thread.id} style={{ borderBottom: '1px solid #eee' }}>
-                <td style={{ padding: '1rem' }}>
-                  <Link
-                    to={`/threads/${thread.id}`}
-                    style={{ color: '#2c3e50', textDecoration: 'none', fontWeight: '500' }}
-                  >
-                    {thread.title}
-                  </Link>
-                  {thread.tags && thread.tags.length > 0 && (
-                    <div style={{ marginTop: '0.5rem', display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-                      {thread.tags.map(tag => (
-                        <span
-                          key={tag}
-                          style={{
-                            background: '#e8f4f8',
-                            color: '#3498db',
-                            padding: '0.25rem 0.5rem',
-                            borderRadius: '4px',
-                            fontSize: '0.75rem',
-                            cursor: 'pointer'
-                          }}
-                          onClick={() => {
-                            if (!selectedTags.includes(tag)) {
-                              setSelectedTags([...selectedTags, tag]);
-                            }
-                          }}
-                        >
-                          #{tag}
-                        </span>
-                      ))}
+      <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
+        {threads.content.length === 0 ? (
+          <div style={{ 
+            padding: 'var(--spacing-2xl)', 
+            textAlign: 'center',
+            color: 'var(--color-text-secondary)'
+          }}>
+            <p style={{ fontSize: '1.125rem', margin: 0 }}>게시글이 없습니다.</p>
+            <p style={{ fontSize: '0.9375rem', marginTop: 'var(--spacing-sm)' }}>
+              첫 번째 게시글을 작성해보세요!
+            </p>
+          </div>
+        ) : (
+          <div style={{ display: 'flex', flexDirection: 'column' }}>
+            {threads.content.map((thread, index) => (
+              <Link
+                key={thread.id}
+                to={`/threads/${thread.id}`}
+                style={{
+                  display: 'block',
+                  padding: 'var(--spacing-lg)',
+                  borderBottom: index < threads.content.length - 1 ? '1px solid var(--color-border)' : 'none',
+                  textDecoration: 'none',
+                  color: 'inherit',
+                  transition: 'background-color 0.2s ease'
+                }}
+                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--color-bg-secondary)'}
+                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+              >
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 'var(--spacing-md)' }}>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <h3 style={{ 
+                      margin: '0 0 var(--spacing-sm) 0',
+                      fontSize: '1.125rem',
+                      fontWeight: '600',
+                      color: 'var(--color-text)',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      whiteSpace: 'nowrap'
+                    }}>
+                      {thread.title}
+                    </h3>
+                    {thread.tags && thread.tags.length > 0 && (
+                      <div style={{ 
+                        display: 'flex', 
+                        gap: 'var(--spacing-sm)', 
+                        flexWrap: 'wrap',
+                        marginBottom: 'var(--spacing-sm)'
+                      }}>
+                        {thread.tags.map(tag => (
+                          <span
+                            key={tag}
+                            onClick={(e) => {
+                              e.preventDefault();
+                              if (!selectedTags.includes(tag)) {
+                                setSelectedTags([...selectedTags, tag]);
+                              }
+                            }}
+                            style={{
+                              background: 'var(--color-bg-secondary)',
+                              color: 'var(--color-primary)',
+                              padding: '0.25rem 0.625rem',
+                              borderRadius: 'var(--radius-full)',
+                              fontSize: '0.8125rem',
+                              fontWeight: '500',
+                              cursor: 'pointer',
+                              transition: 'all 0.2s ease'
+                            }}
+                            onMouseEnter={(e) => {
+                              e.currentTarget.style.background = 'var(--color-primary)';
+                              e.currentTarget.style.color = 'white';
+                            }}
+                            onMouseLeave={(e) => {
+                              e.currentTarget.style.background = 'var(--color-bg-secondary)';
+                              e.currentTarget.style.color = 'var(--color-primary)';
+                            }}
+                          >
+                            #{tag}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                    <div style={{ 
+                      display: 'flex', 
+                      gap: 'var(--spacing-md)', 
+                      alignItems: 'center',
+                      fontSize: '0.875rem',
+                      color: 'var(--color-text-secondary)'
+                    }}>
+                      <span>{thread.authorId ? thread.authorId.substring(0, 8) : '익명'}</span>
+                      <span>·</span>
+                      <span>
+                        {thread.createdAt ? new Date(thread.createdAt).toLocaleDateString('ko-KR', {
+                          year: 'numeric',
+                          month: 'short',
+                          day: 'numeric'
+                        }) : '-'}
+                      </span>
                     </div>
-                  )}
-                </td>
-                <td style={{ padding: '1rem', color: '#7f8c8d' }}>
-                  {thread.authorId ? thread.authorId.substring(0, 8) : '익명'}
-                </td>
-                <td style={{ padding: '1rem', color: '#7f8c8d' }}>
-                  {thread.createdAt ? new Date(thread.createdAt).toLocaleDateString() : '-'}
-                </td>
-              </tr>
+                  </div>
+                </div>
+              </Link>
             ))}
-          </tbody>
-        </table>
+          </div>
+        )}
       </div>
 
       {threads.totalPages > 1 && (
-        <div style={{ marginTop: '2rem', display: 'flex', justifyContent: 'center', gap: '0.5rem' }}>
+        <div style={{ 
+          marginTop: 'var(--spacing-xl)', 
+          display: 'flex', 
+          justifyContent: 'center', 
+          alignItems: 'center',
+          gap: 'var(--spacing-sm)'
+        }}>
           <button
             onClick={() => setPage(p => Math.max(0, p - 1))}
             disabled={page === 0}
-            style={{
-              padding: '0.5rem 1rem',
-              border: '1px solid #ddd',
-              background: page === 0 ? '#f5f5f5' : 'white',
-              cursor: page === 0 ? 'not-allowed' : 'pointer',
-              borderRadius: '4px'
-            }}
+            className="btn btn-secondary"
           >
             이전
           </button>
-          <span style={{ padding: '0.5rem 1rem', display: 'flex', alignItems: 'center' }}>
+          <span style={{ 
+            padding: '0 var(--spacing-md)',
+            color: 'var(--color-text-secondary)',
+            fontSize: '0.9375rem'
+          }}>
             {page + 1} / {threads.totalPages}
           </span>
           <button
             onClick={() => setPage(p => Math.min(threads.totalPages - 1, p + 1))}
             disabled={page >= threads.totalPages - 1}
-            style={{
-              padding: '0.5rem 1rem',
-              border: '1px solid #ddd',
-              background: page >= threads.totalPages - 1 ? '#f5f5f5' : 'white',
-              cursor: page >= threads.totalPages - 1 ? 'not-allowed' : 'pointer',
-              borderRadius: '4px'
-            }}
+            className="btn btn-secondary"
           >
             다음
           </button>
@@ -150,4 +241,3 @@ export default function BoardPage() {
     </div>
   );
 }
-

@@ -20,22 +20,30 @@ export default function Home() {
     }, []);
 
     if (loading) {
-        return <div>로딩 중...</div>;
+        return (
+            <div style={{ 
+                display: 'flex', 
+                justifyContent: 'center', 
+                alignItems: 'center', 
+                minHeight: '400px',
+                color: 'var(--color-text-secondary)'
+            }}>
+                로딩 중...
+            </div>
+        );
     }
 
     if (error) {
         return (
             <div>
-                <h1>게시판 목록</h1>
-                <div style={{
-                    padding: '2rem',
-                    background: '#fee',
-                    color: '#c33',
-                    borderRadius: '8px',
-                    marginTop: '2rem'
+                <h1 style={{ marginBottom: 'var(--spacing-xl)', fontSize: '2rem', fontWeight: '700' }}>게시판 목록</h1>
+                <div className="card" style={{
+                    background: '#fef2f2',
+                    border: '1px solid #fecaca',
+                    color: 'var(--color-error)',
                 }}>
-                    <p style={{ margin: 0, fontWeight: '500' }}>오류가 발생했습니다</p>
-                    <p style={{ margin: '0.5rem 0 0 0', fontSize: '0.9rem' }}>{error}</p>
+                    <p style={{ margin: 0, fontWeight: '600', marginBottom: 'var(--spacing-sm)' }}>오류가 발생했습니다</p>
+                    <p style={{ margin: 0, fontSize: '0.9375rem', color: 'var(--color-text-secondary)' }}>{error}</p>
                     <button
                         onClick={() => {
                             setLoading(true);
@@ -47,15 +55,8 @@ export default function Home() {
                                 })
                                 .finally(() => setLoading(false));
                         }}
-                        style={{
-                            marginTop: '1rem',
-                            padding: '0.5rem 1rem',
-                            background: '#3498db',
-                            color: 'white',
-                            border: 'none',
-                            borderRadius: '4px',
-                            cursor: 'pointer'
-                        }}
+                        className="btn btn-primary"
+                        style={{ marginTop: 'var(--spacing-md)' }}
                     >
                         다시 시도
                     </button>
@@ -66,76 +67,76 @@ export default function Home() {
 
     return (
         <div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
-                <h1 style={{ margin: 0 }}>게시판 목록</h1>
+            <div style={{ 
+                display: 'flex', 
+                justifyContent: 'space-between', 
+                alignItems: 'center', 
+                marginBottom: 'var(--spacing-xl)' 
+            }}>
+                <h1 style={{ margin: 0, fontSize: '2rem', fontWeight: '700', letterSpacing: '-0.02em' }}>게시판 목록</h1>
                 <button
                     onClick={() => navigate('/boards/new')}
-                    style={{
-                        padding: '0.75rem 1.5rem',
-                        background: '#27ae60',
-                        color: 'white',
-                        border: 'none',
-                        borderRadius: '4px',
-                        cursor: 'pointer',
-                        fontSize: '1rem',
-                        fontWeight: '500'
-                    }}
+                    className="btn btn-primary"
+                    style={{ fontSize: '0.9375rem' }}
                 >
                     + 게시판 생성
                 </button>
             </div>
+            
             {boards.length === 0 ? (
-                <div style={{
-                    padding: '3rem',
-                    textAlign: 'center',
-                    color: '#7f8c8d',
-                    marginTop: '2rem'
+                <div className="card" style={{
+                    padding: 'var(--spacing-2xl)',
+                    textAlign: 'center'
                 }}>
-                    <p style={{ fontSize: '1.1rem', marginBottom: '0.5rem' }}>등록된 게시판이 없습니다.</p>
-                    <p style={{ fontSize: '0.9rem', marginBottom: '1rem' }}>첫 번째 게시판을 만들어보세요!</p>
+                    <div style={{ fontSize: '3rem', marginBottom: 'var(--spacing-md)' }}>📋</div>
+                    <p style={{ fontSize: '1.125rem', fontWeight: '500', marginBottom: 'var(--spacing-sm)', color: 'var(--color-text)' }}>
+                        등록된 게시판이 없습니다
+                    </p>
+                    <p style={{ fontSize: '0.9375rem', marginBottom: 'var(--spacing-lg)', color: 'var(--color-text-secondary)' }}>
+                        첫 번째 게시판을 만들어보세요!
+                    </p>
                     <button
                         onClick={() => navigate('/boards/new')}
-                        style={{
-                            padding: '0.75rem 1.5rem',
-                            background: '#27ae60',
-                            color: 'white',
-                            border: 'none',
-                            borderRadius: '4px',
-                            cursor: 'pointer',
-                            fontSize: '1rem',
-                            fontWeight: '500'
-                        }}
+                        className="btn btn-primary"
                     >
                         게시판 생성하기
                     </button>
                 </div>
             ) : (
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '1rem', marginTop: '2rem' }}>
+                <div style={{ 
+                    display: 'grid', 
+                    gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', 
+                    gap: 'var(--spacing-lg)' 
+                }}>
                     {boards.map(board => (
                         <Link
                             key={board.id}
                             to={`/boards/${board.id}`}
+                            className="card card-hover"
                             style={{
-                                display: 'block',
-                                padding: '1.5rem',
-                                border: '1px solid #ddd',
-                                borderRadius: '8px',
                                 textDecoration: 'none',
                                 color: 'inherit',
-                                transition: 'transform 0.2s, box-shadow 0.2s'
-                            }}
-                            onMouseEnter={(e) => {
-                                e.currentTarget.style.transform = 'translateY(-4px)';
-                                e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.1)';
-                            }}
-                            onMouseLeave={(e) => {
-                                e.currentTarget.style.transform = 'translateY(0)';
-                                e.currentTarget.style.boxShadow = 'none';
+                                padding: 'var(--spacing-xl)',
+                                display: 'block'
                             }}
                         >
-                            <h2 style={{ margin: '0 0 0.5rem 0', color: '#2c3e50' }}>{board.name}</h2>
+                            <h2 style={{ 
+                                margin: '0 0 var(--spacing-md) 0', 
+                                fontSize: '1.25rem',
+                                fontWeight: '600',
+                                color: 'var(--color-text)'
+                            }}>
+                                {board.name}
+                            </h2>
                             {board.description && (
-                                <p style={{ margin: 0, color: '#7f8c8d', fontSize: '0.9rem' }}>{board.description}</p>
+                                <p style={{ 
+                                    margin: 0, 
+                                    color: 'var(--color-text-secondary)', 
+                                    fontSize: '0.9375rem',
+                                    lineHeight: '1.5'
+                                }}>
+                                    {board.description}
+                                </p>
                             )}
                         </Link>
                     ))}

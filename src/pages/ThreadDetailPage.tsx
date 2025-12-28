@@ -22,7 +22,10 @@ export default function ThreadDetailPage() {
         setThreadDetail(detail);
         setComments(commentsData);
       })
-      .catch(console.error)
+      .catch((err) => {
+        console.error('게시글 로드 실패:', err);
+        setThreadDetail(null);
+      })
       .finally(() => setLoading(false));
   }, [threadId]);
 
@@ -80,54 +83,116 @@ export default function ThreadDetailPage() {
     }
   };
 
+  const handleReply = async (parentId: string, content: string) => {
+    if (!threadId) return;
+    
+    const comment = await apiClient.createComment({
+      threadId,
+      content,
+      parentId
+    });
+    setComments([...comments, comment]);
+    if (threadDetail) {
+      setThreadDetail({
+        ...threadDetail,
+        commentCount: threadDetail.commentCount + 1
+      });
+    }
+  };
+
   if (loading) {
-    return <div>로딩 중...</div>;
+    return (
+      <div style={{ 
+        display: 'flex', 
+        justifyContent: 'center', 
+        alignItems: 'center', 
+        minHeight: '400px',
+        color: 'var(--color-text-secondary)'
+      }}>
+        로딩 중...
+      </div>
+    );
   }
 
   if (!threadDetail) {
-    return <div>게시글을 찾을 수 없습니다.</div>;
+    return (
+      <div className="card" style={{ textAlign: 'center', padding: 'var(--spacing-2xl)' }}>
+        <p style={{ color: 'var(--color-text-secondary)', fontSize: '1.125rem' }}>
+          게시글을 찾을 수 없습니다.
+        </p>
+      </div>
+    );
   }
 
   const thread = threadDetail.thread;
 
   return (
     <div>
-      <div style={{ marginBottom: '1rem' }}>
+      <div style={{ marginBottom: 'var(--spacing-lg)' }}>
         <Link
           to={`/boards/${thread.boardId}`}
-          style={{ color: '#3498db', textDecoration: 'none' }}
+          style={{ 
+            color: 'var(--color-text-secondary)', 
+            textDecoration: 'none',
+            fontSize: '0.9375rem',
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: 'var(--spacing-sm)'
+          }}
         >
           ← 게시판으로
         </Link>
       </div>
 
-      <article style={{
-        background: 'white',
-        padding: '2rem',
-        borderRadius: '8px',
-        boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-        marginBottom: '2rem'
-      }}>
-        <h1 style={{ marginTop: 0, marginBottom: '1rem' }}>{thread.title}</h1>
+      <article className="card" style={{ marginBottom: 'var(--spacing-xl)' }}>
+        <h1 style={{ 
+          margin: '0 0 var(--spacing-md) 0',
+          fontSize: '1.75rem',
+          fontWeight: '700',
+          letterSpacing: '-0.02em',
+          lineHeight: '1.3'
+        }}>
+          {thread.title}
+        </h1>
         
-        <div style={{ marginBottom: '1rem', color: '#7f8c8d', fontSize: '0.9rem' }}>
-          <span>작성자: {thread.authorId ? thread.authorId.substring(0, 8) : '익명'}</span>
-          <span style={{ marginLeft: '1rem' }}>
-            작성일: {thread.createdAt ? new Date(thread.createdAt).toLocaleString() : '-'}
+        <div style={{ 
+          marginBottom: 'var(--spacing-md)', 
+          display: 'flex',
+          gap: 'var(--spacing-md)',
+          alignItems: 'center',
+          fontSize: '0.875rem',
+          color: 'var(--color-text-secondary)'
+        }}>
+          <span>{thread.authorId ? thread.authorId.substring(0, 8) : '익명'}</span>
+          <span>·</span>
+          <span>
+            {thread.createdAt ? new Date(thread.createdAt).toLocaleString('ko-KR', {
+              year: 'numeric',
+              month: 'short',
+              day: 'numeric',
+              hour: '2-digit',
+              minute: '2-digit'
+            }) : '-'}
           </span>
         </div>
 
         {thread.tags && thread.tags.length > 0 && (
-          <div style={{ marginBottom: '1rem', display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+          <div style={{ 
+            marginBottom: 'var(--spacing-lg)', 
+            display: 'flex', 
+            gap: 'var(--spacing-sm)', 
+            flexWrap: 'wrap' 
+          }}>
             {thread.tags.map(tag => (
               <span
                 key={tag}
                 style={{
-                  background: '#e8f4f8',
-                  color: '#3498db',
-                  padding: '0.25rem 0.5rem',
-                  borderRadius: '4px',
-                  fontSize: '0.875rem'
+                  background: 'var(--color-bg-secondary)',
+                  color: 'var(--color-primary)',
+                  padding: '0.375rem 0.75rem',
+                  borderRadius: 'var(--radius-full)',
+                  fontSize: '0.8125rem',
+                  fontWeight: '500'
                 }}
               >
                 #{tag}
@@ -137,107 +202,104 @@ export default function ThreadDetailPage() {
         )}
 
         <div style={{
-          marginBottom: '2rem',
-          padding: '1.5rem',
-          background: '#f8f9fa',
-          borderRadius: '4px',
-          lineHeight: '1.6',
-          whiteSpace: 'pre-wrap'
+          marginBottom: 'var(--spacing-xl)',
+          padding: 'var(--spacing-xl)',
+          background: 'var(--color-bg-secondary)',
+          borderRadius: 'var(--radius-md)',
+          lineHeight: '1.8',
+          whiteSpace: 'pre-wrap',
+          fontSize: '1rem',
+          color: 'var(--color-text)'
         }}>
           {thread.content}
         </div>
 
-        <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', flexWrap: 'wrap' }}>
-          <div style={{ display: 'flex', gap: '0.5rem' }}>
+        <div style={{ 
+          display: 'flex', 
+          gap: 'var(--spacing-md)', 
+          alignItems: 'center', 
+          flexWrap: 'wrap',
+          paddingTop: 'var(--spacing-lg)',
+          borderTop: '1px solid var(--color-border)'
+        }}>
+          <div style={{ display: 'flex', gap: 'var(--spacing-sm)' }}>
             <button
               onClick={() => handleToggleReaction('LIKE')}
+              className="btn btn-secondary"
               style={{
-                padding: '0.5rem 1rem',
-                border: '1px solid #ddd',
-                background: threadDetail.myReaction === 'LIKE' ? '#e8f5e9' : 'white',
-                cursor: 'pointer',
-                borderRadius: '4px'
+                background: threadDetail.myReaction === 'LIKE' ? '#ecfdf5' : 'var(--color-bg)',
+                borderColor: threadDetail.myReaction === 'LIKE' ? '#10b981' : 'var(--color-border)',
+                color: threadDetail.myReaction === 'LIKE' ? '#10b981' : 'var(--color-text)'
               }}
             >
-              좋아요 {threadDetail.reactions.LIKE || 0}
+              👍 좋아요 {threadDetail.reactions.LIKE || 0}
             </button>
             <button
               onClick={() => handleToggleReaction('LOVE')}
+              className="btn btn-secondary"
               style={{
-                padding: '0.5rem 1rem',
-                border: '1px solid #ddd',
-                background: threadDetail.myReaction === 'LOVE' ? '#fce4ec' : 'white',
-                cursor: 'pointer',
-                borderRadius: '4px'
+                background: threadDetail.myReaction === 'LOVE' ? '#fef2f2' : 'var(--color-bg)',
+                borderColor: threadDetail.myReaction === 'LOVE' ? '#ef4444' : 'var(--color-border)',
+                color: threadDetail.myReaction === 'LOVE' ? '#ef4444' : 'var(--color-text)'
               }}
             >
-              사랑해요 {threadDetail.reactions.LOVE || 0}
+              ❤️ 사랑해요 {threadDetail.reactions.LOVE || 0}
             </button>
           </div>
           
           <button
             onClick={handleToggleBookmark}
+            className="btn btn-secondary"
             style={{
-              padding: '0.5rem 1rem',
-              border: '1px solid #ddd',
-              background: threadDetail.bookmarked ? '#fff3cd' : 'white',
-              cursor: 'pointer',
-              borderRadius: '4px'
+              background: threadDetail.bookmarked ? '#fffbeb' : 'var(--color-bg)',
+              borderColor: threadDetail.bookmarked ? '#f59e0b' : 'var(--color-border)',
+              color: threadDetail.bookmarked ? '#f59e0b' : 'var(--color-text)'
             }}
           >
             {threadDetail.bookmarked ? '★' : '☆'} 북마크 ({threadDetail.bookmarkCount})
           </button>
 
-          <span style={{ color: '#7f8c8d' }}>
-            댓글 {threadDetail.commentCount}개
+          <span style={{ 
+            color: 'var(--color-text-secondary)',
+            fontSize: '0.9375rem'
+          }}>
+            💬 댓글 {threadDetail.commentCount}개
           </span>
         </div>
       </article>
 
-      <section style={{
-        background: 'white',
-        padding: '2rem',
-        borderRadius: '8px',
-        boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
-      }}>
-        <h2 style={{ marginTop: 0 }}>댓글</h2>
+      <section className="card">
+        <h2 style={{ 
+          margin: '0 0 var(--spacing-xl) 0',
+          fontSize: '1.5rem',
+          fontWeight: '600'
+        }}>
+          댓글
+        </h2>
         
-        <form onSubmit={handleSubmitComment} style={{ marginBottom: '2rem' }}>
+        <form onSubmit={handleSubmitComment} style={{ marginBottom: 'var(--spacing-xl)' }}>
           <textarea
             value={newComment}
             onChange={(e) => setNewComment(e.target.value)}
             placeholder="댓글을 입력하세요..."
+            className="input"
             style={{
-              width: '100%',
-              minHeight: '100px',
-              padding: '0.75rem',
-              border: '1px solid #ddd',
-              borderRadius: '4px',
-              fontSize: '1rem',
-              fontFamily: 'inherit',
-              resize: 'vertical'
+              minHeight: '120px',
+              resize: 'vertical',
+              fontFamily: 'inherit'
             }}
           />
           <button
             type="submit"
-            style={{
-              marginTop: '0.5rem',
-              padding: '0.75rem 1.5rem',
-              background: '#3498db',
-              color: 'white',
-              border: 'none',
-              borderRadius: '4px',
-              cursor: 'pointer',
-              fontSize: '1rem'
-            }}
+            className="btn btn-primary"
+            style={{ marginTop: 'var(--spacing-md)' }}
           >
             댓글 작성
           </button>
         </form>
 
-        <CommentList comments={comments} />
+        <CommentList comments={comments} onReply={handleReply} />
       </section>
     </div>
   );
 }
-

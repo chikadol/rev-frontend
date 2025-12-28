@@ -261,12 +261,14 @@ class ApiClient {
     return this.request<MeOverview>('/api/me/overview');
   }
 
-  async getMyBookmarks(): Promise<BookmarkedThread[]> {
-    return this.request<BookmarkedThread[]>('/api/me/bookmarks/threads');
+  async getMyBookmarks(page: number = 0, size: number = 20): Promise<PageResponse<BookmarkedThread>> {
+    const params = new URLSearchParams({ page: page.toString(), size: size.toString() });
+    return this.request<PageResponse<BookmarkedThread>>(`/api/me/bookmarks/threads?${params.toString()}`);
   }
 
-  async getMyComments(): Promise<MyComment[]> {
-    return this.request<MyComment[]>('/api/me/comments');
+  async getMyComments(page: number = 0, size: number = 20): Promise<PageResponse<MyComment>> {
+    const params = new URLSearchParams({ page: page.toString(), size: size.toString() });
+    return this.request<PageResponse<MyComment>>(`/api/me/comments?${params.toString()}`);
   }
 }
 

@@ -37,23 +37,35 @@ export default function CreateThreadPage() {
 
   return (
     <div style={{ maxWidth: '800px', margin: '0 auto' }}>
-      <h1>새 글 작성</h1>
+      <h1 style={{ 
+        marginBottom: 'var(--spacing-xl)',
+        fontSize: '2rem',
+        fontWeight: '700',
+        letterSpacing: '-0.02em'
+      }}>
+        새 글 작성
+      </h1>
       
       {error && (
-        <div style={{
-          background: '#fee',
-          color: '#c33',
-          padding: '1rem',
-          borderRadius: '4px',
-          marginBottom: '1rem'
+        <div className="card" style={{
+          background: '#fef2f2',
+          border: '1px solid #fecaca',
+          color: 'var(--color-error)',
+          marginBottom: 'var(--spacing-lg)'
         }}>
           {error}
         </div>
       )}
 
-      <form onSubmit={handleSubmit}>
-        <div style={{ marginBottom: '1rem' }}>
-          <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>
+      <form onSubmit={handleSubmit} className="card" style={{ padding: 'var(--spacing-xl)' }}>
+        <div style={{ marginBottom: 'var(--spacing-lg)' }}>
+          <label style={{ 
+            display: 'block', 
+            marginBottom: 'var(--spacing-sm)', 
+            fontWeight: '600',
+            fontSize: '0.9375rem',
+            color: 'var(--color-text)'
+          }}>
             제목
           </label>
           <input
@@ -62,18 +74,18 @@ export default function CreateThreadPage() {
             onChange={(e) => setTitle(e.target.value)}
             placeholder="제목을 입력하세요"
             required
-            style={{
-              width: '100%',
-              padding: '0.75rem',
-              border: '1px solid #ddd',
-              borderRadius: '4px',
-              fontSize: '1rem'
-            }}
+            className="input"
           />
         </div>
 
-        <div style={{ marginBottom: '1rem' }}>
-          <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>
+        <div style={{ marginBottom: 'var(--spacing-lg)' }}>
+          <label style={{ 
+            display: 'block', 
+            marginBottom: 'var(--spacing-sm)', 
+            fontWeight: '600',
+            fontSize: '0.9375rem',
+            color: 'var(--color-text)'
+          }}>
             내용
           </label>
           <textarea
@@ -82,58 +94,48 @@ export default function CreateThreadPage() {
             placeholder="내용을 입력하세요"
             required
             rows={15}
-            style={{
-              width: '100%',
-              padding: '0.75rem',
-              border: '1px solid #ddd',
-              borderRadius: '4px',
-              fontSize: '1rem',
-              fontFamily: 'inherit',
-              resize: 'vertical'
-            }}
+            className="input"
+            style={{ resize: 'vertical', fontFamily: 'inherit' }}
           />
         </div>
 
-        <div style={{ marginBottom: '1.5rem' }}>
-          <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
+        <div style={{ marginBottom: 'var(--spacing-xl)' }}>
+          <label style={{ 
+            display: 'flex', 
+            alignItems: 'center', 
+            gap: 'var(--spacing-sm)', 
+            cursor: 'pointer',
+            fontSize: '0.9375rem',
+            color: 'var(--color-text)'
+          }}>
             <input
               type="checkbox"
               checked={isPrivate}
               onChange={(e) => setIsPrivate(e.target.checked)}
+              style={{
+                width: '18px',
+                height: '18px',
+                cursor: 'pointer'
+              }}
             />
             <span>비공개</span>
           </label>
         </div>
 
-        <div style={{ display: 'flex', gap: '1rem' }}>
+        <div style={{ display: 'flex', gap: 'var(--spacing-md)' }}>
           <button
             type="submit"
             disabled={loading}
-            style={{
-              padding: '0.75rem 2rem',
-              background: loading ? '#95a5a6' : '#3498db',
-              color: 'white',
-              border: 'none',
-              borderRadius: '4px',
-              cursor: loading ? 'not-allowed' : 'pointer',
-              fontSize: '1rem',
-              fontWeight: '500'
-            }}
+            className="btn btn-primary"
+            style={{ flex: 1 }}
           >
             {loading ? '작성 중...' : '작성하기'}
           </button>
           <button
             type="button"
             onClick={() => navigate(-1)}
-            style={{
-              padding: '0.75rem 2rem',
-              background: 'white',
-              color: '#2c3e50',
-              border: '1px solid #ddd',
-              borderRadius: '4px',
-              cursor: 'pointer',
-              fontSize: '1rem'
-            }}
+            className="btn btn-secondary"
+            style={{ flex: 1 }}
           >
             취소
           </button>
@@ -142,4 +144,3 @@ export default function CreateThreadPage() {
     </div>
   );
 }
-

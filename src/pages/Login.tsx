@@ -26,7 +26,6 @@ export default function Login() {
             console.error("로그인 실패:", err);
             let errorMessage = err.message || "로그인에 실패했습니다.";
             
-            // 영어 에러 메시지를 한국어로 변환
             if (errorMessage.includes("Invalid credentials")) {
                 errorMessage = "이메일 또는 비밀번호가 올바르지 않습니다.";
             } else if (errorMessage.includes("Invalid")) {
@@ -40,57 +39,121 @@ export default function Login() {
     };
 
     return (
-        <div style={{ padding: 40, maxWidth: 400, margin: "0 auto" }}>
-            <h2>로그인</h2>
-            
-            {error && (
-                <div style={{ color: "red", marginBottom: 16, padding: "1rem", background: "#fee", borderRadius: "4px" }}>
-                    {error}
+        <div style={{ 
+            display: 'flex', 
+            justifyContent: 'center', 
+            alignItems: 'center', 
+            minHeight: 'calc(100vh - 200px)',
+            padding: 'var(--spacing-xl)'
+        }}>
+            <div className="card" style={{ 
+                maxWidth: '420px', 
+                width: '100%',
+                padding: 'var(--spacing-2xl)'
+            }}>
+                <h1 style={{ 
+                    margin: '0 0 var(--spacing-sm) 0',
+                    fontSize: '1.75rem',
+                    fontWeight: '700',
+                    letterSpacing: '-0.02em'
+                }}>
+                    로그인
+                </h1>
+                <p style={{ 
+                    margin: '0 0 var(--spacing-xl) 0',
+                    color: 'var(--color-text-secondary)',
+                    fontSize: '0.9375rem'
+                }}>
+                    RE-V에 오신 것을 환영합니다
+                </p>
+                
+                {error && (
+                    <div style={{ 
+                        background: '#fef2f2',
+                        border: '1px solid #fecaca',
+                        color: 'var(--color-error)',
+                        padding: 'var(--spacing-md)',
+                        borderRadius: 'var(--radius)',
+                        marginBottom: 'var(--spacing-lg)',
+                        fontSize: '0.9375rem'
+                    }}>
+                        {error}
+                    </div>
+                )}
+
+                <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-lg)' }}>
+                    <div>
+                        <label style={{ 
+                            display: 'block', 
+                            marginBottom: 'var(--spacing-sm)', 
+                            fontWeight: '500',
+                            fontSize: '0.9375rem',
+                            color: 'var(--color-text)'
+                        }}>
+                            이메일
+                        </label>
+                        <input
+                            type="email"
+                            placeholder="이메일을 입력하세요"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            required
+                            className="input"
+                        />
+                    </div>
+
+                    <div>
+                        <label style={{ 
+                            display: 'block', 
+                            marginBottom: 'var(--spacing-sm)', 
+                            fontWeight: '500',
+                            fontSize: '0.9375rem',
+                            color: 'var(--color-text)'
+                        }}>
+                            비밀번호
+                        </label>
+                        <input
+                            type="password"
+                            placeholder="비밀번호를 입력하세요"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            required
+                            className="input"
+                        />
+                    </div>
+
+                    <button 
+                        type="submit" 
+                        disabled={loading}
+                        className="btn btn-primary"
+                        style={{ width: '100%', marginTop: 'var(--spacing-sm)' }}
+                    >
+                        {loading ? "로그인 중..." : "로그인"}
+                    </button>
+                </form>
+
+                <div style={{ 
+                    marginTop: 'var(--spacing-xl)', 
+                    textAlign: 'center',
+                    paddingTop: 'var(--spacing-lg)',
+                    borderTop: '1px solid var(--color-border)'
+                }}>
+                    <span style={{ color: 'var(--color-text-secondary)', fontSize: '0.9375rem' }}>
+                        계정이 없으신가요?{" "}
+                    </span>
+                    <Link 
+                        to="/register" 
+                        style={{ 
+                            color: 'var(--color-primary)', 
+                            textDecoration: 'none', 
+                            fontWeight: '500',
+                            fontSize: '0.9375rem'
+                        }}
+                    >
+                        회원가입
+                    </Link>
                 </div>
-            )}
-
-            <form onSubmit={handleLogin}>
-                <div style={{ marginBottom: 16 }}>
-                    <input
-                        type="email"
-                        placeholder="이메일"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        required
-                        style={{ width: "100%", padding: 8, fontSize: "1rem", border: "1px solid #ddd", borderRadius: "4px" }}
-                    />
-                </div>
-
-                <div style={{ marginBottom: 16 }}>
-                    <input
-                        type="password"
-                        placeholder="비밀번호"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        required
-                        style={{ width: "100%", padding: 8, fontSize: "1rem", border: "1px solid #ddd", borderRadius: "4px" }}
-                    />
-                </div>
-
-                <button 
-                    type="submit" 
-                    disabled={loading}
-                    style={{ width: "100%", padding: 10, fontSize: "1rem", background: loading ? "#95a5a6" : "#3498db", color: "white", border: "none", borderRadius: "4px", cursor: loading ? "not-allowed" : "pointer" }}
-                >
-                    {loading ? "로그인 중..." : "로그인"}
-                </button>
-            </form>
-
-            <div style={{ marginTop: "1.5rem", textAlign: "center" }}>
-                <span style={{ color: "#7f8c8d" }}>계정이 없으신가요? </span>
-                <Link 
-                    to="/register" 
-                    style={{ color: "#3498db", textDecoration: "none", fontWeight: "500" }}
-                >
-                    회원가입
-                </Link>
             </div>
         </div>
     );
 }
-

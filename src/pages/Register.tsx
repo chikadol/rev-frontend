@@ -15,7 +15,6 @@ export default function Register() {
         e.preventDefault();
         setError("");
 
-        // 입력 검증
         if (!email || !username || !password || !confirmPassword) {
             setError("모든 필드를 입력해주세요.");
             return;
@@ -49,7 +48,6 @@ export default function Register() {
             console.error("회원가입 실패:", err);
             let errorMessage = err.message || "회원가입에 실패했습니다.";
             
-            // 영어 에러 메시지를 한국어로 변환
             if (errorMessage.includes("이미 등록된 이메일")) {
                 errorMessage = "이미 등록된 이메일입니다.";
             } else if (errorMessage.includes("이미 사용 중인 사용자명")) {
@@ -65,138 +63,164 @@ export default function Register() {
     };
 
     return (
-        <div style={{ padding: 40, maxWidth: 400, margin: "0 auto" }}>
-            <h2>회원가입</h2>
-            
-            {error && (
-                <div style={{ 
-                    color: "red", 
-                    marginBottom: 16, 
-                    padding: "1rem", 
-                    background: "#fee", 
-                    borderRadius: "4px" 
+        <div style={{ 
+            display: 'flex', 
+            justifyContent: 'center', 
+            alignItems: 'center', 
+            minHeight: 'calc(100vh - 200px)',
+            padding: 'var(--spacing-xl)'
+        }}>
+            <div className="card" style={{ 
+                maxWidth: '420px', 
+                width: '100%',
+                padding: 'var(--spacing-2xl)'
+            }}>
+                <h1 style={{ 
+                    margin: '0 0 var(--spacing-sm) 0',
+                    fontSize: '1.75rem',
+                    fontWeight: '700',
+                    letterSpacing: '-0.02em'
                 }}>
-                    {error}
-                </div>
-            )}
+                    회원가입
+                </h1>
+                <p style={{ 
+                    margin: '0 0 var(--spacing-xl) 0',
+                    color: 'var(--color-text-secondary)',
+                    fontSize: '0.9375rem'
+                }}>
+                    RE-V 커뮤니티에 가입하세요
+                </p>
+                
+                {error && (
+                    <div style={{ 
+                        background: '#fef2f2',
+                        border: '1px solid #fecaca',
+                        color: 'var(--color-error)',
+                        padding: 'var(--spacing-md)',
+                        borderRadius: 'var(--radius)',
+                        marginBottom: 'var(--spacing-lg)',
+                        fontSize: '0.9375rem'
+                    }}>
+                        {error}
+                    </div>
+                )}
 
-            <form onSubmit={handleRegister}>
-                <div style={{ marginBottom: 16 }}>
-                    <label style={{ display: "block", marginBottom: "0.5rem", fontWeight: "500" }}>
-                        이메일
-                    </label>
-                    <input
-                        type="email"
-                        placeholder="이메일을 입력하세요"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        required
+                <form onSubmit={handleRegister} style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-lg)' }}>
+                    <div>
+                        <label style={{ 
+                            display: 'block', 
+                            marginBottom: 'var(--spacing-sm)', 
+                            fontWeight: '500',
+                            fontSize: '0.9375rem',
+                            color: 'var(--color-text)'
+                        }}>
+                            이메일
+                        </label>
+                        <input
+                            type="email"
+                            placeholder="이메일을 입력하세요"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            required
+                            className="input"
+                        />
+                    </div>
+
+                    <div>
+                        <label style={{ 
+                            display: 'block', 
+                            marginBottom: 'var(--spacing-sm)', 
+                            fontWeight: '500',
+                            fontSize: '0.9375rem',
+                            color: 'var(--color-text)'
+                        }}>
+                            사용자명
+                        </label>
+                        <input
+                            type="text"
+                            placeholder="사용자명을 입력하세요"
+                            value={username}
+                            onChange={(e) => setUsername(e.target.value)}
+                            required
+                            minLength={2}
+                            maxLength={50}
+                            className="input"
+                        />
+                    </div>
+
+                    <div>
+                        <label style={{ 
+                            display: 'block', 
+                            marginBottom: 'var(--spacing-sm)', 
+                            fontWeight: '500',
+                            fontSize: '0.9375rem',
+                            color: 'var(--color-text)'
+                        }}>
+                            비밀번호
+                        </label>
+                        <input
+                            type="password"
+                            placeholder="비밀번호를 입력하세요 (최소 8자)"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            required
+                            minLength={8}
+                            className="input"
+                        />
+                    </div>
+
+                    <div>
+                        <label style={{ 
+                            display: 'block', 
+                            marginBottom: 'var(--spacing-sm)', 
+                            fontWeight: '500',
+                            fontSize: '0.9375rem',
+                            color: 'var(--color-text)'
+                        }}>
+                            비밀번호 확인
+                        </label>
+                        <input
+                            type="password"
+                            placeholder="비밀번호를 다시 입력하세요"
+                            value={confirmPassword}
+                            onChange={(e) => setConfirmPassword(e.target.value)}
+                            required
+                            className="input"
+                        />
+                    </div>
+
+                    <button 
+                        type="submit" 
+                        disabled={loading}
+                        className="btn btn-primary"
+                        style={{ width: '100%', marginTop: 'var(--spacing-sm)' }}
+                    >
+                        {loading ? "가입 중..." : "회원가입"}
+                    </button>
+                </form>
+
+                <div style={{ 
+                    marginTop: 'var(--spacing-xl)', 
+                    textAlign: 'center',
+                    paddingTop: 'var(--spacing-lg)',
+                    borderTop: '1px solid var(--color-border)'
+                }}>
+                    <span style={{ color: 'var(--color-text-secondary)', fontSize: '0.9375rem' }}>
+                        이미 계정이 있으신가요?{" "}
+                    </span>
+                    <Link 
+                        to="/login" 
                         style={{ 
-                            width: "100%", 
-                            padding: "0.75rem", 
-                            fontSize: "1rem", 
-                            border: "1px solid #ddd", 
-                            borderRadius: "4px",
-                            boxSizing: "border-box"
+                            color: 'var(--color-primary)', 
+                            textDecoration: 'none', 
+                            fontWeight: '500',
+                            fontSize: '0.9375rem'
                         }}
-                    />
+                    >
+                        로그인
+                    </Link>
                 </div>
-
-                <div style={{ marginBottom: 16 }}>
-                    <label style={{ display: "block", marginBottom: "0.5rem", fontWeight: "500" }}>
-                        사용자명
-                    </label>
-                    <input
-                        type="text"
-                        placeholder="사용자명을 입력하세요"
-                        value={username}
-                        onChange={(e) => setUsername(e.target.value)}
-                        required
-                        minLength={2}
-                        maxLength={50}
-                        style={{ 
-                            width: "100%", 
-                            padding: "0.75rem", 
-                            fontSize: "1rem", 
-                            border: "1px solid #ddd", 
-                            borderRadius: "4px",
-                            boxSizing: "border-box"
-                        }}
-                    />
-                </div>
-
-                <div style={{ marginBottom: 16 }}>
-                    <label style={{ display: "block", marginBottom: "0.5rem", fontWeight: "500" }}>
-                        비밀번호
-                    </label>
-                    <input
-                        type="password"
-                        placeholder="비밀번호를 입력하세요 (최소 8자)"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        required
-                        minLength={8}
-                        style={{ 
-                            width: "100%", 
-                            padding: "0.75rem", 
-                            fontSize: "1rem", 
-                            border: "1px solid #ddd", 
-                            borderRadius: "4px",
-                            boxSizing: "border-box"
-                        }}
-                    />
-                </div>
-
-                <div style={{ marginBottom: 24 }}>
-                    <label style={{ display: "block", marginBottom: "0.5rem", fontWeight: "500" }}>
-                        비밀번호 확인
-                    </label>
-                    <input
-                        type="password"
-                        placeholder="비밀번호를 다시 입력하세요"
-                        value={confirmPassword}
-                        onChange={(e) => setConfirmPassword(e.target.value)}
-                        required
-                        style={{ 
-                            width: "100%", 
-                            padding: "0.75rem", 
-                            fontSize: "1rem", 
-                            border: "1px solid #ddd", 
-                            borderRadius: "4px",
-                            boxSizing: "border-box"
-                        }}
-                    />
-                </div>
-
-                <button 
-                    type="submit" 
-                    disabled={loading}
-                    style={{ 
-                        width: "100%", 
-                        padding: "0.75rem", 
-                        fontSize: "1rem", 
-                        background: loading ? "#95a5a6" : "#3498db", 
-                        color: "white", 
-                        border: "none", 
-                        borderRadius: "4px", 
-                        cursor: loading ? "not-allowed" : "pointer",
-                        fontWeight: "500"
-                    }}
-                >
-                    {loading ? "가입 중..." : "회원가입"}
-                </button>
-            </form>
-
-            <div style={{ marginTop: "1.5rem", textAlign: "center" }}>
-                <span style={{ color: "#7f8c8d" }}>이미 계정이 있으신가요? </span>
-                <Link 
-                    to="/login" 
-                    style={{ color: "#3498db", textDecoration: "none", fontWeight: "500" }}
-                >
-                    로그인
-                </Link>
             </div>
         </div>
     );
 }
-
