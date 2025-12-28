@@ -36,7 +36,7 @@ export default function PaymentPage() {
       .finally(() => setLoading(false));
   }, [ticketId, navigate]);
 
-  const handlePayment = async () => {
+    const handlePayment = async () => {
     if (!ticketId || !selectedMethod) {
       setError('결제 수단을 선택해주세요.');
       return;
@@ -51,10 +51,17 @@ export default function PaymentPage() {
         paymentMethod: selectedMethod,
       });
 
-      // 결제 완료 후 내 티켓 페이지로 이동
-      navigate('/my-tickets', { 
-        state: { message: '결제가 완료되었습니다.' }
-      });
+      // 결제 URL이 있으면 해당 URL로 리다이렉트 (실제 결제 페이지)
+      if (paymentResult.paymentUrl) {
+        window.location.href = paymentResult.paymentUrl;
+        // 리다이렉트되므로 setPaying(false)는 호출되지 않음
+        return;
+      } else {
+        // paymentUrl이 없으면 결제 완료로 간주 (테스트 환경 등)
+        navigate('/my-tickets', { 
+          state: { message: '결제가 완료되었습니다.' }
+        });
+      }
     } catch (err: any) {
       console.error('결제 실패:', err);
       setError(err.message || '결제에 실패했습니다.');

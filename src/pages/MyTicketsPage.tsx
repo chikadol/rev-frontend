@@ -95,11 +95,9 @@ export default function MyTicketsPage() {
                       <p style={{ margin: '0 0 var(--spacing-xs) 0' }}>
                         📅 {formatDateTime(ticket.performanceDateTime)}
                       </p>
-                      {ticket.seatNumber && (
-                        <p style={{ margin: 0 }}>
-                          💺 좌석: {ticket.seatNumber}
-                        </p>
-                      )}
+                      <p style={{ margin: 0 }}>
+                        💺 스탠딩 입장
+                      </p>
                     </div>
                     <div style={{
                       display: 'flex',

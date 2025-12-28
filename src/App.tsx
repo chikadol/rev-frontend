@@ -13,6 +13,7 @@ import PerformancesPage from './pages/PerformancesPage';
 import PerformanceDetailPage from './pages/PerformanceDetailPage';
 import MyTicketsPage from './pages/MyTicketsPage';
 import PaymentPage from './pages/PaymentPage';
+import PaymentCallbackPage from './pages/PaymentCallbackPage';
 import './App.css';
 
 function PrivateRoute({ children }: { children: React.ReactNode }) {
@@ -63,6 +64,7 @@ function App() {
                             <PaymentPage />
                         </PrivateRoute>
                     } />
+                    <Route path="/payment/callback" element={<PaymentCallbackPage />} />
                 </Routes>
             </Layout>
         </BrowserRouter>

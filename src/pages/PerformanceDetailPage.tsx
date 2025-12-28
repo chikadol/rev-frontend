@@ -9,7 +9,6 @@ export default function PerformanceDetailPage() {
   const [performance, setPerformance] = useState<Performance | null>(null);
   const [loading, setLoading] = useState(true);
   const [quantity, setQuantity] = useState(1);
-  const [seatNumber, setSeatNumber] = useState('');
   const [purchasing, setPurchasing] = useState(false);
   const [error, setError] = useState('');
 
@@ -29,7 +28,7 @@ export default function PerformanceDetailPage() {
     if (!id || !performance) return;
 
     if (performance.remainingSeats < quantity) {
-      setError(`남은 좌석이 부족합니다. (남은 좌석: ${performance.remainingSeats})`);
+      setError(`남은 티켓이 부족합니다. (남은 티켓: ${performance.remainingSeats})`);
       return;
     }
 
@@ -37,11 +36,10 @@ export default function PerformanceDetailPage() {
     setError('');
 
     try {
-      const ticket = await apiClient.purchaseTicket({
-        performanceId: id,
-        quantity,
-        seatNumber: seatNumber || undefined,
-      });
+            const ticket = await apiClient.purchaseTicket({
+              performanceId: id,
+              quantity,
+            });
       
       // 결제 페이지로 이동
       navigate(`/tickets/${ticket.id}/payment`);
@@ -195,7 +193,7 @@ export default function PerformanceDetailPage() {
                   fontSize: '0.9375rem',
                   marginBottom: 'var(--spacing-xs)'
                 }}>
-                  남은 좌석
+                  남은 티켓
                 </div>
                 <div style={{ fontSize: '1.125rem', fontWeight: '600' }}>
                   {performance.remainingSeats} / {performance.totalSeats}
@@ -266,23 +264,6 @@ export default function PerformanceDetailPage() {
               </div>
             </div>
 
-            <div style={{ marginBottom: 'var(--spacing-lg)' }}>
-              <label style={{ 
-                display: 'block', 
-                marginBottom: 'var(--spacing-sm)', 
-                fontWeight: '600',
-                fontSize: '0.9375rem'
-              }}>
-                좌석 번호 (선택사항)
-              </label>
-              <input
-                type="text"
-                value={seatNumber}
-                onChange={(e) => setSeatNumber(e.target.value)}
-                placeholder="예: A-12"
-                className="input"
-              />
-            </div>
 
             <div style={{
               padding: 'var(--spacing-lg)',

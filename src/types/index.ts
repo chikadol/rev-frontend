@@ -125,5 +125,6 @@ export interface Payment {
   amount: number;
   paymentMethod: 'NAVER_PAY' | 'TOSS' | 'KAKAO_PAY';
   status: 'PENDING' | 'COMPLETED' | 'FAILED' | 'CANCELLED';
+  paymentUrl?: string; // 결제 URL (결제 제공자로 리다이렉트)
 }
 
