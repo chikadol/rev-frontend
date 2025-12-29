@@ -36,7 +36,7 @@ export default function PaymentPage() {
       .finally(() => setLoading(false));
   }, [ticketId, navigate]);
 
-    const handlePayment = async () => {
+  const handlePayment = async () => {
     if (!ticketId || !selectedMethod) {
       setError('결제 수단을 선택해주세요.');
       return;
@@ -102,9 +102,24 @@ export default function PaymentPage() {
   }
 
   const paymentMethods = [
-    { value: 'NAVER_PAY' as const, name: '네이버페이', icon: '🟢', color: '#03C75A' },
-    { value: 'TOSS' as const, name: '토스', icon: '💳', color: '#0064FF' },
-    { value: 'KAKAO_PAY' as const, name: '카카오페이', icon: '💛', color: '#FEE500' },
+    { 
+      value: 'NAVER_PAY' as const, 
+      name: '네이버페이', 
+      color: '#03C75A',
+      buttonImage: '/images/payment/naverpay-button.svg'
+    },
+    { 
+      value: 'TOSS' as const, 
+      name: '토스페이', 
+      color: '#0064FF',
+      buttonImage: '/images/payment/toss-button.svg'
+    },
+    { 
+      value: 'KAKAO_PAY' as const, 
+      name: '카카오페이', 
+      color: '#FEE500',
+      buttonImage: '/images/payment/kakaopay-button.svg'
+    },
   ];
 
   return (
@@ -174,33 +189,86 @@ export default function PaymentPage() {
               key={method.value}
               onClick={() => setSelectedMethod(method.value)}
               style={{
-                padding: 'var(--spacing-lg)',
-                border: selectedMethod === method.value ? `2px solid ${method.color}` : '1px solid var(--color-border)',
+                padding: 0,
+                border: selectedMethod === method.value ? `3px solid ${method.color}` : '2px solid transparent',
                 borderRadius: 'var(--radius-md)',
-                background: selectedMethod === method.value ? `${method.color}15` : 'var(--color-bg)',
+                background: 'transparent',
                 cursor: 'pointer',
                 display: 'flex',
                 alignItems: 'center',
-                gap: 'var(--spacing-md)',
-                transition: 'all 0.2s ease'
+                justifyContent: 'center',
+                transition: 'all 0.2s ease',
+                position: 'relative',
+                overflow: 'hidden',
+                width: '100%',
+                minHeight: '60px'
               }}
             >
-              <span style={{ fontSize: '1.5rem' }}>{method.icon}</span>
-              <span style={{ 
-                fontSize: '1.125rem',
-                fontWeight: '600',
-                flex: 1,
-                textAlign: 'left'
-              }}>
-                {method.name}
-              </span>
-              {selectedMethod === method.value && (
-                <span style={{ 
-                  color: method.color,
-                  fontWeight: '600'
+              {method.buttonImage ? (
+                <img 
+                  src={method.buttonImage} 
+                  alt={method.name}
+                  style={{
+                    width: '100%',
+                    height: 'auto',
+                    objectFit: 'contain',
+                    maxHeight: '70px',
+                    minHeight: '50px',
+                    opacity: selectedMethod === method.value ? 1 : 0.85,
+                    filter: selectedMethod === method.value ? 'none' : 'brightness(0.9)',
+                    transition: 'all 0.2s ease',
+                    display: 'block'
+                  }}
+                  onError={(e) => {
+                    // 이미지 로드 실패 시 텍스트 버튼으로 대체
+                    const target = e.target as HTMLImageElement;
+                    target.style.display = 'none';
+                    const parent = target.parentElement;
+                    if (parent) {
+                      parent.style.padding = 'var(--spacing-lg)';
+                      parent.style.background = selectedMethod === method.value ? `${method.color}15` : 'var(--color-bg)';
+                      parent.style.border = selectedMethod === method.value ? `2px solid ${method.color}` : '1px solid var(--color-border)';
+                      const fallback = document.createElement('span');
+                      fallback.textContent = method.name;
+                      fallback.style.fontSize = '1.125rem';
+                      fallback.style.fontWeight = '600';
+                      fallback.style.color = method.color;
+                      parent.appendChild(fallback);
+                    }
+                  }}
+                />
+              ) : (
+                <span style={{
+                  padding: 'var(--spacing-lg)',
+                  fontSize: '1.125rem',
+                  fontWeight: '600',
+                  color: method.color
                 }}>
-                  ✓
+                  {method.name}
                 </span>
+              )}
+              {selectedMethod === method.value && (
+                <div style={{
+                  position: 'absolute',
+                  top: '8px',
+                  right: '8px',
+                  width: '24px',
+                  height: '24px',
+                  borderRadius: '50%',
+                  background: method.color,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
+                }}>
+                  <span style={{ 
+                    color: '#fff',
+                    fontWeight: '700',
+                    fontSize: '0.875rem'
+                  }}>
+                    ✓
+                  </span>
+                </div>
               )}
             </button>
           ))}
@@ -244,4 +312,3 @@ export default function PaymentPage() {
     </div>
   );
 }
-

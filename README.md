@@ -10,10 +10,21 @@ npm install
 ```
 
 ### 2. 환경 변수 설정
-`.env` 파일이 이미 생성되어 있습니다:
+프로젝트 루트에 `.env` 파일을 생성하세요:
+
+```bash
+# .env 파일 생성
+cat > .env << EOF
+VITE_API_BASE_URL=http://localhost:8080
+EOF
+```
+
+또는 직접 `.env` 파일을 편집:
 ```
 VITE_API_BASE_URL=http://localhost:8080
 ```
+
+**참고**: 백엔드 서버 주소가 다르면 `VITE_API_BASE_URL`을 변경하세요.
 
 ### 3. 개발 서버 실행
 ```bash

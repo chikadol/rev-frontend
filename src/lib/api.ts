@@ -1,4 +1,4 @@
-import type {
+﻿import type {
   Board,
   Thread,
   ThreadDetail,
@@ -15,8 +15,8 @@ import type {
   Payment,
 } from '../types';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080';
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080';
 
 export interface LoginRequest {
   email: string;
@@ -325,6 +325,38 @@ class ApiClient {
 
   async getPaymentByTicketId(ticketId: string): Promise<Payment | null> {
     return this.request<Payment | null>(`/api/payments/ticket/${ticketId}`);
+  }
+
+  // Crawler (Admin)
+  async triggerCrawl(clear: boolean = false, fast: boolean = true): Promise<{ message: string }> {
+    const params = new URLSearchParams();
+    if (clear) {
+      params.append('clear', 'true');
+    }
+    if (fast) {
+      params.append('fast', 'true');
+    } else {
+      params.append('fast', 'false');
+    }
+    return this.request<{ message: string }>(
+      `/api/admin/agito-crawler/crawl?${params.toString()}`,
+      {
+        method: 'POST',
+      }
+    );
+  }
+
+  async triggerAgitoCrawl(clear: boolean = false): Promise<{ message: string }> {
+    const params = new URLSearchParams();
+    if (clear) {
+      params.append('clear', 'true');
+    }
+    return this.request<{ message: string }>(
+      `/api/admin/agito-crawler/crawl-agito?${params.toString()}`,
+      {
+        method: 'POST',
+      }
+    );
   }
 }
 

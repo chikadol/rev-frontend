@@ -9,18 +9,34 @@ export default function PerformancesPage() {
   const [filter, setFilter] = useState<'all' | 'upcoming'>('upcoming');
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [currentMonth, setCurrentMonth] = useState(new Date());
+  const [crawling, setCrawling] = useState(false);
+  const [crawlMessage, setCrawlMessage] = useState<string | null>(null);
 
   useEffect(() => {
-    const loadPerformances = filter === 'upcoming' 
-      ? apiClient.getUpcomingPerformances()
-      : apiClient.getPerformances();
-    
-    loadPerformances
-      .then(setPerformances)
-      .catch((err) => {
+    const fetchPerformances = async () => {
+      try {
+        const loadPerformances = filter === 'upcoming' 
+          ? apiClient.getUpcomingPerformances()
+          : apiClient.getPerformances();
+
+        const data = await loadPerformances;
+
+        // 예정된 공연이 비어 있으면 전체 목록을 한 번 더 시도 (상태 플래그 오류 대비)
+        if (filter === 'upcoming' && data.length === 0) {
+          console.warn('예정된 공연이 비어 있습니다. 전체 공연을 다시 조회합니다.');
+          const all = await apiClient.getPerformances();
+          setPerformances(all);
+        } else {
+          setPerformances(data);
+        }
+      } catch (err) {
         console.error('공연 목록 로드 실패:', err);
-      })
-      .finally(() => setLoading(false));
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchPerformances();
   }, [filter]);
 
   if (loading) {
@@ -137,6 +153,54 @@ export default function PerformancesPage() {
     return date1.toISOString().split('T')[0] === date2.toISOString().split('T')[0];
   };
 
+  const handleCrawl = async (clear: boolean = false, fast: boolean = true) => {
+    setCrawling(true);
+    setCrawlMessage(null);
+    try {
+      // 타임아웃 설정 (30초)
+      const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('요청 시간이 초과되었습니다.')), 30000)
+      );
+      
+      const result = await Promise.race([
+        apiClient.triggerCrawl(clear, fast),
+        timeoutPromise
+      ]) as { message: string };
+      
+      setCrawlMessage(result.message);
+      setCrawling(false);
+      
+      // 크롤링 시작 후 잠시 대기 후 공연 목록 새로고침 (여러 번 시도)
+      const refreshPerformances = async (attempt: number = 1) => {
+        if (attempt > 5) return; // 최대 5번 시도
+        
+        setTimeout(async () => {
+          try {
+            const loadPerformances = filter === 'upcoming' 
+              ? apiClient.getUpcomingPerformances()
+              : apiClient.getPerformances();
+            const data = await loadPerformances;
+            if (data.length > 0 || attempt >= 5) {
+              setPerformances(data);
+            } else {
+              refreshPerformances(attempt + 1);
+            }
+          } catch (error) {
+            console.error('공연 목록 새로고침 실패:', error);
+            if (attempt < 5) {
+              refreshPerformances(attempt + 1);
+            }
+          }
+        }, attempt * 3000); // 3초, 6초, 9초, 12초, 15초 간격으로 시도
+      };
+      
+      refreshPerformances();
+    } catch (error: any) {
+      setCrawlMessage(error.message || '크롤링에 실패했습니다.');
+      setCrawling(false);
+    }
+  };
+
   return (
     <div>
       <div style={{ 
@@ -153,7 +217,7 @@ export default function PerformancesPage() {
         }}>
           공연 일정
         </h1>
-        <div style={{ display: 'flex', gap: 'var(--spacing-sm)' }}>
+        <div style={{ display: 'flex', gap: 'var(--spacing-sm)', alignItems: 'center' }}>
           <button
             onClick={() => setFilter('upcoming')}
             className={filter === 'upcoming' ? 'btn btn-primary' : 'btn btn-secondary'}
@@ -168,8 +232,30 @@ export default function PerformancesPage() {
           >
             전체
           </button>
+          <button
+            onClick={() => handleCrawl(false)}
+            disabled={crawling}
+            className="btn btn-secondary"
+            style={{ fontSize: '0.9375rem' }}
+            title="공연 정보 크롤링"
+          >
+            {crawling ? '크롤링 중...' : '🔄 새로고침'}
+          </button>
         </div>
       </div>
+
+      {crawlMessage && (
+        <div className="card" style={{
+          marginBottom: 'var(--spacing-lg)',
+          background: crawlMessage.includes('실패') ? '#fef2f2' : '#f0fdf4',
+          border: `1px solid ${crawlMessage.includes('실패') ? '#fecaca' : '#bbf7d0'}`,
+          color: crawlMessage.includes('실패') ? 'var(--color-error)' : '#16a34a',
+          padding: 'var(--spacing-md)',
+          fontSize: '0.9375rem'
+        }}>
+          {crawlMessage}
+        </div>
+      )}
 
       <div style={{ 
         display: 'grid', 

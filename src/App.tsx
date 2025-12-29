@@ -14,6 +14,8 @@ import PerformanceDetailPage from './pages/PerformanceDetailPage';
 import MyTicketsPage from './pages/MyTicketsPage';
 import PaymentPage from './pages/PaymentPage';
 import PaymentCallbackPage from './pages/PaymentCallbackPage';
+import OAuthCallback from './pages/OAuthCallback';
+import Landing from './pages/Landing';
 import './App.css';
 
 function PrivateRoute({ children }: { children: React.ReactNode }) {
@@ -28,7 +30,7 @@ function App() {
                 <Routes>
                     <Route path="/login" element={<Login />} />
                     <Route path="/register" element={<Register />} />
-                    <Route path="/" element={<PerformancesPage />} />
+                    <Route path="/" element={<Landing />} />
                     <Route path="/boards" element={<Home />} />
                     <Route path="/boards/new" element={
                         <PrivateRoute>
@@ -65,6 +67,7 @@ function App() {
                         </PrivateRoute>
                     } />
                     <Route path="/payment/callback" element={<PaymentCallbackPage />} />
+                    <Route path="/auth/callback" element={<OAuthCallback />} />
                 </Routes>
             </Layout>
         </BrowserRouter>

@@ -11,7 +11,16 @@ export default defineConfig({
         target: 'http://localhost:8080',
         changeOrigin: true,
       },
-      '/auth': {
+      // 인증 엔드포인트만 프록시하고, /auth/callback은 프론트 라우터가 처리하도록 제외
+      '/auth/login': {
+        target: 'http://localhost:8080',
+        changeOrigin: true,
+      },
+      '/auth/register': {
+        target: 'http://localhost:8080',
+        changeOrigin: true,
+      },
+      '/auth/refresh': {
         target: 'http://localhost:8080',
         changeOrigin: true,
       },

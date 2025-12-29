@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>결제 버튼 이미지 생성</title>
+</head>
+<body>
+    <h1>결제 버튼 이미지 생성</h1>
+    <p>각 결제 서비스의 공식 색상과 스타일을 사용한 버튼을 생성합니다.</p>
+    
+    <canvas id="naverpay" width="200" height="60"></canvas>
+    <canvas id="toss" width="200" height="60"></canvas>
+    <canvas id="kakaopay" width="200" height="60"></canvas>
+    
+    <script>
+        // 네이버페이 버튼
+        const naverCanvas = document.getElementById('naverpay');
+        const naverCtx = naverCanvas.getContext('2d');
+        naverCtx.fillStyle = '#03C75A';
+        naverCtx.fillRect(0, 0, 200, 60);
+        naverCtx.fillStyle = '#FFFFFF';
+        naverCtx.font = 'bold 18px Arial';
+        naverCtx.textAlign = 'center';
+        naverCtx.fillText('네이버페이', 100, 38);
+        
+        // 토스페이 버튼
+        const tossCanvas = document.getElementById('toss');
+        const tossCtx = tossCanvas.getContext('2d');
+        tossCtx.fillStyle = '#0064FF';
+        tossCtx.fillRect(0, 0, 200, 60);
+        tossCtx.fillStyle = '#FFFFFF';
+        tossCtx.font = 'bold 18px Arial';
+        tossCtx.textAlign = 'center';
+        tossCtx.fillText('토스페이', 100, 38);
+        
+        // 카카오페이 버튼
+        const kakaoCanvas = document.getElementById('kakaopay');
+        const kakaoCtx = kakaoCanvas.getContext('2d');
+        kakaoCtx.fillStyle = '#FEE500';
+        kakaoCtx.fillRect(0, 0, 200, 60);
+        kakaoCtx.fillStyle = '#000000';
+        kakaoCtx.font = 'bold 18px Arial';
+        kakaoCtx.textAlign = 'center';
+        kakaoCtx.fillText('카카오페이', 100, 38);
+        
+        // 다운로드 함수
+        function downloadCanvas(canvas, filename) {
+            canvas.toBlob(function(blob) {
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = filename;
+                a.click();
+            });
+        }
+        
+        // 각 버튼 클릭 시 다운로드
+        naverCanvas.onclick = () => downloadCanvas(naverCanvas, 'naverpay-button.png');
+        tossCanvas.onclick = () => downloadCanvas(tossCanvas, 'toss-button.png');
+        kakaoCanvas.onclick = () => downloadCanvas(kakaoCanvas, 'kakaopay-button.png');
+    </script>
+</body>
+</html>

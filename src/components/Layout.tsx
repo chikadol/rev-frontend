@@ -54,7 +54,7 @@ export default function Layout({ children }: LayoutProps) {
         backdropFilter: 'blur(10px)',
         backgroundColor: 'rgba(255, 255, 255, 0.9)'
       }}>
-        <Link to="/performances" style={{ 
+        <Link to="/" style={{ 
           color: 'var(--color-text)', 
           textDecoration: 'none', 
           fontSize: '1.5rem', 
