@@ -8,6 +8,7 @@ export default function Register() {
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
+    const [role, setRole] = useState<"USER" | "IDOL">("USER");
     const [error, setError] = useState("");
     const [loading, setLoading] = useState(false);
 
@@ -36,7 +37,8 @@ export default function Register() {
             const data = await apiClient.register({ 
                 email: email.trim(), 
                 username: username.trim(),
-                password 
+                password,
+                role
             });
             
             localStorage.setItem("accessToken", data.accessToken);
@@ -304,6 +306,40 @@ export default function Register() {
                             required
                             className="input"
                         />
+                    </div>
+
+                    <div>
+                        <label style={{ 
+                            display: 'block', 
+                            marginBottom: 'var(--spacing-sm)', 
+                            fontWeight: '500',
+                            fontSize: '0.9375rem',
+                            color: 'var(--color-text)'
+                        }}>
+                            가입 유형
+                        </label>
+                        <div style={{ display: 'flex', gap: 'var(--spacing-md)' }}>
+                            <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
+                                <input
+                                    type="radio"
+                                    name="role"
+                                    value="USER"
+                                    checked={role === "USER"}
+                                    onChange={() => setRole("USER")}
+                                />
+                                <span>일반 유저</span>
+                            </label>
+                            <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
+                                <input
+                                    type="radio"
+                                    name="role"
+                                    value="IDOL"
+                                    checked={role === "IDOL"}
+                                    onChange={() => setRole("IDOL")}
+                                />
+                                <span>지하아이돌</span>
+                            </label>
+                        </div>
                     </div>
 
                     <button 

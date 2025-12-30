@@ -16,6 +16,9 @@ import PaymentPage from './pages/PaymentPage';
 import PaymentCallbackPage from './pages/PaymentCallbackPage';
 import OAuthCallback from './pages/OAuthCallback';
 import Landing from './pages/Landing';
+import IdolList from './pages/IdolList';
+import IdolDetail from './pages/IdolDetail';
+import CreatePerformancePage from './pages/CreatePerformancePage';
 import './App.css';
 
 function PrivateRoute({ children }: { children: React.ReactNode }) {
@@ -55,6 +58,11 @@ function App() {
                         </PrivateRoute>
                     } />
                     <Route path="/performances" element={<PerformancesPage />} />
+                    <Route path="/performances/new" element={
+                        <PrivateRoute>
+                            <CreatePerformancePage />
+                        </PrivateRoute>
+                    } />
                     <Route path="/performances/:id" element={<PerformanceDetailPage />} />
                     <Route path="/my-tickets" element={
                         <PrivateRoute>
@@ -67,6 +75,8 @@ function App() {
                         </PrivateRoute>
                     } />
                     <Route path="/payment/callback" element={<PaymentCallbackPage />} />
+                    <Route path="/idols" element={<IdolList />} />
+                    <Route path="/idols/:idolId" element={<IdolDetail />} />
                     <Route path="/auth/callback" element={<OAuthCallback />} />
                 </Routes>
             </Layout>

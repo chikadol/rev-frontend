@@ -12,6 +12,13 @@ export default function Landing() {
       color: 'var(--color-primary)'
     },
     {
+      title: '아이돌 목록',
+      desc: '지하아이돌 정보를 한눈에 보고 등록할 수 있습니다.',
+      action: () => navigate('/idols'),
+      icon: '🌟',
+      color: '#f39c12'
+    },
+    {
       title: '커뮤니티 게시판',
       desc: '아티스트 소식과 후기를 자유롭게 공유하세요.',
       action: () => navigate('/boards'),

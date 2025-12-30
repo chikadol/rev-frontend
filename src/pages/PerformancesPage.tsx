@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { apiClient } from '../lib/api';
 import type { Performance } from '../types';
 
 export default function PerformancesPage() {
+  const navigate = useNavigate();
   const [performances, setPerformances] = useState<Performance[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<'all' | 'upcoming'>('upcoming');
@@ -241,6 +242,16 @@ export default function PerformancesPage() {
           >
             {crawling ? '크롤링 중...' : '🔄 새로고침'}
           </button>
+          {localStorage.getItem('accessToken') && (
+            <button
+              onClick={() => navigate('/performances/new')}
+              className="btn btn-primary"
+              style={{ fontSize: '0.9375rem' }}
+              title="공연 등록 (지하아이돌 권한 필요)"
+            >
+              + 공연 등록
+            </button>
+          )}
         </div>
       </div>
 

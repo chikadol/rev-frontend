@@ -89,7 +89,9 @@ export default function PerformanceDetailPage() {
     });
   };
 
-  const totalPrice = performance.price * quantity;
+  // 가격 우선순위: advPrice > doorPrice > price
+  const ticketPrice = performance.advPrice || performance.doorPrice || performance.price;
+  const totalPrice = ticketPrice * quantity;
 
   return (
     <div>
@@ -146,6 +148,26 @@ export default function PerformanceDetailPage() {
               </div>
             )}
 
+          {performance.performers && performance.performers.length > 0 && (
+            <div style={{ marginBottom: 'var(--spacing-xl)' }}>
+              <div style={{ 
+                color: 'var(--color-text-secondary)',
+                fontSize: '0.9375rem',
+                marginBottom: 'var(--spacing-xs)',
+                fontWeight: 600
+              }}>
+                출연진
+              </div>
+              <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                {performance.performers.map((p) => (
+                  <span key={p} className="badge" style={{ padding: '6px 10px' }}>
+                    {p}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+
             <div style={{
               display: 'grid',
               gridTemplateColumns: 'repeat(2, 1fr)',
@@ -184,7 +206,26 @@ export default function PerformanceDetailPage() {
                   티켓 가격
                 </div>
                 <div style={{ fontSize: '1.125rem', fontWeight: '600', color: 'var(--color-primary)' }}>
-                  {performance.price.toLocaleString()}원
+                  {performance.advPrice ? (
+                    <div>
+                      <div style={{ marginBottom: '0.25rem' }}>
+                        사전예매: <span style={{ color: 'var(--color-primary)' }}>{performance.advPrice.toLocaleString()}원</span>
+                      </div>
+                      {performance.doorPrice && (
+                        <div style={{ fontSize: '0.9375rem', color: 'var(--color-text-secondary)' }}>
+                          현장예매: {performance.doorPrice.toLocaleString()}원
+                        </div>
+                      )}
+                    </div>
+                  ) : performance.doorPrice ? (
+                    <div>
+                      <div style={{ marginBottom: '0.25rem' }}>
+                        현장예매: <span style={{ color: 'var(--color-primary)' }}>{performance.doorPrice.toLocaleString()}원</span>
+                      </div>
+                    </div>
+                  ) : (
+                    <div>{performance.price.toLocaleString()}원</div>
+                  )}
                 </div>
               </div>
               <div>
@@ -277,7 +318,7 @@ export default function PerformanceDetailPage() {
                 marginBottom: 'var(--spacing-sm)'
               }}>
                 <span style={{ color: 'var(--color-text-secondary)' }}>티켓 가격</span>
-                <span>{performance.price.toLocaleString()}원 × {quantity}</span>
+                <span>{ticketPrice.toLocaleString()}원 × {quantity}</span>
               </div>
               <div style={{
                 display: 'flex',

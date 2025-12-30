@@ -27,6 +27,7 @@ export interface RegisterRequest {
   email: string;
   username: string;
   password: string;
+  role?: "USER" | "IDOL";
 }
 
 export interface TokenResponse {
@@ -287,6 +288,24 @@ class ApiClient {
     return this.request<Performance>(`/api/performances/${id}`);
   }
 
+  async createPerformance(data: {
+    title: string;
+    description?: string;
+    venue: string;
+    performanceDateTime: string;
+    advPrice?: number;
+    doorPrice?: number;
+    totalSeats: number;
+    imageUrl?: string;
+    idolId?: string;
+    performers?: string[];
+  }): Promise<Performance> {
+    return this.request<Performance>('/api/performances', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
   // Tickets
   async purchaseTicket(data: {
     performanceId: string;
@@ -328,7 +347,7 @@ class ApiClient {
   }
 
   // Crawler (Admin)
-  async triggerCrawl(clear: boolean = false, fast: boolean = true): Promise<{ message: string }> {
+  async triggerCrawl(clear: boolean = false, fast: boolean = false): Promise<{ message: string }> {
     const params = new URLSearchParams();
     if (clear) {
       params.append('clear', 'true');
@@ -357,6 +376,26 @@ class ApiClient {
         method: 'POST',
       }
     );
+  }
+
+  // Idols
+  async getIdols(): Promise<Array<{ id: string; name: string; description?: string; imageUrl?: string }>> {
+    return this.request('/api/idols');
+  }
+
+  async getIdol(id: string) {
+    return this.request(`/api/idols/${id}`);
+  }
+
+  async getIdolPerformances(id: string): Promise<Performance[]> {
+    return this.request<Performance[]>(`/api/idols/${id}/performances`);
+  }
+
+  async createIdol(data: { name: string; description?: string; imageUrl?: string }) {
+    return this.request('/api/idols', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
   }
 }
 

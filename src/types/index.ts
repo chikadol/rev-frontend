@@ -101,10 +101,14 @@ export interface Performance {
   venue: string;
   performanceDateTime: string;
   price: number;
+  advPrice?: number; // 사전예매 가격
+  doorPrice?: number; // 현장예매 가격
   totalSeats: number;
   remainingSeats: number;
   imageUrl?: string;
   status: 'UPCOMING' | 'ONGOING' | 'ENDED';
+  idolId?: string;
+  performers?: string[];
 }
 
 export interface Ticket {
@@ -126,5 +130,13 @@ export interface Payment {
   paymentMethod: 'NAVER_PAY' | 'TOSS' | 'KAKAO_PAY';
   status: 'PENDING' | 'COMPLETED' | 'FAILED' | 'CANCELLED';
   paymentUrl?: string; // 결제 URL (결제 제공자로 리다이렉트)
+}
+
+export interface Idol {
+  id: string;
+  name: string;
+  description?: string;
+  imageUrl?: string;
+  createdAt?: string;
 }
 
