@@ -103,32 +103,46 @@ export default function MePage() {
   return (
     <div>
       <h1 style={{ 
-        marginBottom: 'var(--spacing-xl)',
-        fontSize: '2rem',
-        fontWeight: '700',
-        letterSpacing: '-0.02em'
+        marginBottom: 'var(--spacing-xs)',
+        fontSize: 'clamp(1.75rem, 4vw, 2.5rem)',
+        fontWeight: '800',
+        letterSpacing: '-0.03em',
+        background: 'linear-gradient(135deg, var(--color-primary) 0%, var(--color-accent) 100%)',
+        WebkitBackgroundClip: 'text',
+        WebkitTextFillColor: 'transparent',
+        backgroundClip: 'text'
       }}>
         내 정보
       </h1>
+      <p style={{
+        margin: '0 0 var(--spacing-2xl) 0',
+        color: 'var(--color-text-secondary)',
+        fontSize: '0.9375rem'
+      }}>
+        내 활동 내역과 통계를 확인하세요
+      </p>
 
       <div style={{
         display: 'flex',
         gap: 'var(--spacing-sm)',
-        borderBottom: '1px solid var(--color-border)',
-        marginBottom: 'var(--spacing-xl)'
+        borderBottom: '2px solid var(--color-border-light)',
+        marginBottom: 'var(--spacing-2xl)'
       }}>
         <button
           onClick={() => setActiveTab('overview')}
           style={{
             padding: 'var(--spacing-md) var(--spacing-lg)',
-            background: 'transparent',
+            background: activeTab === 'overview' 
+              ? 'linear-gradient(135deg, rgba(139, 92, 246, 0.1) 0%, rgba(236, 72, 153, 0.1) 100%)' 
+              : 'transparent',
             color: activeTab === 'overview' ? 'var(--color-primary)' : 'var(--color-text-secondary)',
             border: 'none',
-            borderBottom: activeTab === 'overview' ? '2px solid var(--color-primary)' : '2px solid transparent',
+            borderBottom: activeTab === 'overview' ? '3px solid var(--color-primary)' : '3px solid transparent',
             cursor: 'pointer',
-            fontWeight: activeTab === 'overview' ? '600' : '400',
+            fontWeight: activeTab === 'overview' ? '700' : '500',
             fontSize: '0.9375rem',
-            transition: 'all 0.2s ease'
+            transition: 'all var(--transition-base)',
+            borderRadius: 'var(--radius-md) var(--radius-md) 0 0'
           }}
         >
           요약
@@ -137,14 +151,17 @@ export default function MePage() {
           onClick={() => setActiveTab('bookmarks')}
           style={{
             padding: 'var(--spacing-md) var(--spacing-lg)',
-            background: 'transparent',
+            background: activeTab === 'bookmarks' 
+              ? 'linear-gradient(135deg, rgba(139, 92, 246, 0.1) 0%, rgba(236, 72, 153, 0.1) 100%)' 
+              : 'transparent',
             color: activeTab === 'bookmarks' ? 'var(--color-primary)' : 'var(--color-text-secondary)',
             border: 'none',
-            borderBottom: activeTab === 'bookmarks' ? '2px solid var(--color-primary)' : '2px solid transparent',
+            borderBottom: activeTab === 'bookmarks' ? '3px solid var(--color-primary)' : '3px solid transparent',
             cursor: 'pointer',
-            fontWeight: activeTab === 'bookmarks' ? '600' : '400',
+            fontWeight: activeTab === 'bookmarks' ? '700' : '500',
             fontSize: '0.9375rem',
-            transition: 'all 0.2s ease'
+            transition: 'all var(--transition-base)',
+            borderRadius: 'var(--radius-md) var(--radius-md) 0 0'
           }}
         >
           북마크
@@ -153,14 +170,17 @@ export default function MePage() {
           onClick={() => setActiveTab('comments')}
           style={{
             padding: 'var(--spacing-md) var(--spacing-lg)',
-            background: 'transparent',
+            background: activeTab === 'comments' 
+              ? 'linear-gradient(135deg, rgba(139, 92, 246, 0.1) 0%, rgba(236, 72, 153, 0.1) 100%)' 
+              : 'transparent',
             color: activeTab === 'comments' ? 'var(--color-primary)' : 'var(--color-text-secondary)',
             border: 'none',
-            borderBottom: activeTab === 'comments' ? '2px solid var(--color-primary)' : '2px solid transparent',
+            borderBottom: activeTab === 'comments' ? '3px solid var(--color-primary)' : '3px solid transparent',
             cursor: 'pointer',
-            fontWeight: activeTab === 'comments' ? '600' : '400',
+            fontWeight: activeTab === 'comments' ? '700' : '500',
             fontSize: '0.9375rem',
-            transition: 'all 0.2s ease'
+            transition: 'all var(--transition-base)',
+            borderRadius: 'var(--radius-md) var(--radius-md) 0 0'
           }}
         >
           내 댓글
@@ -170,32 +190,107 @@ export default function MePage() {
       {activeTab === 'overview' && (
         <div style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-          gap: 'var(--spacing-lg)'
+          gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
+          gap: 'var(--spacing-xl)'
         }}>
-          <div className="card" style={{ textAlign: 'center', padding: 'var(--spacing-xl)' }}>
-            <div style={{ fontSize: '2.5rem', fontWeight: '700', color: 'var(--color-primary)', marginBottom: 'var(--spacing-sm)' }}>
+          <div className="card" style={{ 
+            textAlign: 'center', 
+            padding: 'var(--spacing-2xl)',
+            position: 'relative',
+            overflow: 'hidden'
+          }}>
+            <div style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              height: '4px',
+              background: 'linear-gradient(90deg, var(--color-primary) 0%, var(--color-accent) 100%)'
+            }} />
+            <div style={{ 
+              fontSize: '3rem', 
+              fontWeight: '800', 
+              background: 'linear-gradient(135deg, var(--color-primary) 0%, var(--color-accent) 100%)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              backgroundClip: 'text',
+              marginBottom: 'var(--spacing-md)' 
+            }}>
               {overview.threadCount}
             </div>
-            <div style={{ color: 'var(--color-text-secondary)', fontSize: '0.9375rem' }}>작성한 글</div>
+            <div style={{ color: 'var(--color-text-secondary)', fontSize: '0.9375rem', fontWeight: '500' }}>작성한 글</div>
           </div>
-          <div className="card" style={{ textAlign: 'center', padding: 'var(--spacing-xl)' }}>
-            <div style={{ fontSize: '2.5rem', fontWeight: '700', color: '#ef4444', marginBottom: 'var(--spacing-sm)' }}>
+          <div className="card" style={{ 
+            textAlign: 'center', 
+            padding: 'var(--spacing-2xl)',
+            position: 'relative',
+            overflow: 'hidden'
+          }}>
+            <div style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              height: '4px',
+              background: 'linear-gradient(90deg, var(--color-error) 0%, #dc2626 100%)'
+            }} />
+            <div style={{ 
+              fontSize: '3rem', 
+              fontWeight: '800', 
+              color: 'var(--color-error)',
+              marginBottom: 'var(--spacing-md)' 
+            }}>
               {overview.commentCount}
             </div>
-            <div style={{ color: 'var(--color-text-secondary)', fontSize: '0.9375rem' }}>작성한 댓글</div>
+            <div style={{ color: 'var(--color-text-secondary)', fontSize: '0.9375rem', fontWeight: '500' }}>작성한 댓글</div>
           </div>
-          <div className="card" style={{ textAlign: 'center', padding: 'var(--spacing-xl)' }}>
-            <div style={{ fontSize: '2.5rem', fontWeight: '700', color: '#f59e0b', marginBottom: 'var(--spacing-sm)' }}>
+          <div className="card" style={{ 
+            textAlign: 'center', 
+            padding: 'var(--spacing-2xl)',
+            position: 'relative',
+            overflow: 'hidden'
+          }}>
+            <div style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              height: '4px',
+              background: 'linear-gradient(90deg, var(--color-warning) 0%, #d97706 100%)'
+            }} />
+            <div style={{ 
+              fontSize: '3rem', 
+              fontWeight: '800', 
+              color: 'var(--color-warning)',
+              marginBottom: 'var(--spacing-md)' 
+            }}>
               {overview.bookmarkCount}
             </div>
-            <div style={{ color: 'var(--color-text-secondary)', fontSize: '0.9375rem' }}>북마크</div>
+            <div style={{ color: 'var(--color-text-secondary)', fontSize: '0.9375rem', fontWeight: '500' }}>북마크</div>
           </div>
-          <div className="card" style={{ textAlign: 'center', padding: 'var(--spacing-xl)' }}>
-            <div style={{ fontSize: '2.5rem', fontWeight: '700', color: '#10b981', marginBottom: 'var(--spacing-sm)' }}>
+          <div className="card" style={{ 
+            textAlign: 'center', 
+            padding: 'var(--spacing-2xl)',
+            position: 'relative',
+            overflow: 'hidden'
+          }}>
+            <div style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              height: '4px',
+              background: 'linear-gradient(90deg, var(--color-success) 0%, #059669 100%)'
+            }} />
+            <div style={{ 
+              fontSize: '3rem', 
+              fontWeight: '800', 
+              color: 'var(--color-success)',
+              marginBottom: 'var(--spacing-md)' 
+            }}>
               {overview.unreadNotificationCount}
             </div>
-            <div style={{ color: 'var(--color-text-secondary)', fontSize: '0.9375rem' }}>읽지 않은 알림</div>
+            <div style={{ color: 'var(--color-text-secondary)', fontSize: '0.9375rem', fontWeight: '500' }}>읽지 않은 알림</div>
           </div>
         </div>
       )}
@@ -203,15 +298,25 @@ export default function MePage() {
       {activeTab === 'bookmarks' && (
         <div>
           {bookmarks.length === 0 ? (
-            <div className="card" style={{ textAlign: 'center', padding: 'var(--spacing-2xl)' }}>
-              <p style={{ color: 'var(--color-text-secondary)', fontSize: '1.125rem', margin: 0 }}>
+            <div className="card" style={{ 
+              textAlign: 'center', 
+              padding: 'var(--spacing-3xl)',
+              background: 'var(--color-bg-card)'
+            }}>
+              <div style={{ fontSize: '4rem', marginBottom: 'var(--spacing-md)' }}>🔖</div>
+              <p style={{ 
+                color: 'var(--color-text-secondary)', 
+                fontSize: '1.125rem', 
+                margin: 0,
+                fontWeight: '500'
+              }}>
                 북마크한 글이 없습니다.
               </p>
             </div>
           ) : (
             <>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-md)' }}>
-                {bookmarks.map(bookmark => (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-lg)' }}>
+                {bookmarks.map((bookmark, index) => (
                   <Link
                     key={bookmark.threadId}
                     to={`/threads/${bookmark.threadId}`}
@@ -219,30 +324,39 @@ export default function MePage() {
                     style={{
                       textDecoration: 'none',
                       color: 'inherit',
-                      padding: 'var(--spacing-lg)'
+                      padding: 'var(--spacing-xl)',
+                      animation: `fadeIn 0.4s ease-out ${index * 0.05}s both`
                     }}
                   >
                     <h3 style={{ 
-                      margin: '0 0 var(--spacing-sm) 0', 
-                      fontSize: '1.125rem',
-                      fontWeight: '600',
-                      color: 'var(--color-text)'
+                      margin: '0 0 var(--spacing-md) 0', 
+                      fontSize: '1.25rem',
+                      fontWeight: '700',
+                      color: 'var(--color-text)',
+                      lineHeight: 1.3
                     }}>
                       {bookmark.title}
                     </h3>
                     {bookmark.boardName && (
-                      <p style={{ 
-                        margin: '0 0 var(--spacing-sm) 0', 
-                        color: 'var(--color-text-secondary)', 
-                        fontSize: '0.9375rem' 
+                      <div style={{ 
+                        marginBottom: 'var(--spacing-sm)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '0.5rem'
                       }}>
-                        {bookmark.boardName}
-                      </p>
+                        <span className="badge" style={{
+                          fontSize: '0.8125rem',
+                          padding: '0.375rem 0.75rem'
+                        }}>
+                          {bookmark.boardName}
+                        </span>
+                      </div>
                     )}
                     <p style={{ 
                       margin: 0, 
-                      color: 'var(--color-text-secondary)', 
-                      fontSize: '0.875rem' 
+                      color: 'var(--color-text-tertiary)', 
+                      fontSize: '0.875rem',
+                      fontWeight: '500'
                     }}>
                       {bookmark.createdAt ? new Date(bookmark.createdAt).toLocaleDateString('ko-KR', {
                         year: 'numeric',
@@ -292,15 +406,25 @@ export default function MePage() {
       {activeTab === 'comments' && (
         <div>
           {comments.length === 0 ? (
-            <div className="card" style={{ textAlign: 'center', padding: 'var(--spacing-2xl)' }}>
-              <p style={{ color: 'var(--color-text-secondary)', fontSize: '1.125rem', margin: 0 }}>
+            <div className="card" style={{ 
+              textAlign: 'center', 
+              padding: 'var(--spacing-3xl)',
+              background: 'var(--color-bg-card)'
+            }}>
+              <div style={{ fontSize: '4rem', marginBottom: 'var(--spacing-md)' }}>💬</div>
+              <p style={{ 
+                color: 'var(--color-text-secondary)', 
+                fontSize: '1.125rem', 
+                margin: 0,
+                fontWeight: '500'
+              }}>
                 작성한 댓글이 없습니다.
               </p>
             </div>
           ) : (
             <>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-md)' }}>
-                {comments.map(comment => (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-lg)' }}>
+                {comments.map((comment, index) => (
                   <Link
                     key={comment.commentId}
                     to={`/threads/${comment.threadId}`}
@@ -308,39 +432,46 @@ export default function MePage() {
                     style={{
                       textDecoration: 'none',
                       color: 'inherit',
-                      padding: 'var(--spacing-lg)'
+                      padding: 'var(--spacing-xl)',
+                      animation: `fadeIn 0.4s ease-out ${index * 0.05}s both`
                     }}
                   >
-                    <div style={{ marginBottom: 'var(--spacing-sm)' }}>
+                    <div style={{ marginBottom: 'var(--spacing-md)' }}>
                       <span style={{ 
-                        fontWeight: '600', 
+                        fontWeight: '700', 
                         color: 'var(--color-text)',
-                        fontSize: '1rem'
+                        fontSize: '1.125rem',
+                        lineHeight: 1.3
                       }}>
                         {comment.threadTitle}
                       </span>
                       {comment.boardName && (
-                        <span style={{ 
-                          marginLeft: 'var(--spacing-sm)', 
-                          color: 'var(--color-text-secondary)', 
-                          fontSize: '0.9375rem' 
+                        <span className="badge" style={{
+                          marginLeft: 'var(--spacing-sm)',
+                          fontSize: '0.8125rem',
+                          padding: '0.375rem 0.75rem'
                         }}>
-                          ({comment.boardName})
+                          {comment.boardName}
                         </span>
                       )}
                     </div>
                     <p style={{ 
-                      margin: 'var(--spacing-sm) 0', 
+                      margin: 'var(--spacing-md) 0', 
                       color: 'var(--color-text)', 
-                      lineHeight: '1.6',
-                      fontSize: '0.9375rem'
+                      lineHeight: '1.7',
+                      fontSize: '0.9375rem',
+                      padding: 'var(--spacing-md)',
+                      background: 'var(--color-bg-secondary)',
+                      borderRadius: 'var(--radius-md)',
+                      border: '1px solid var(--color-border-light)'
                     }}>
                       {comment.content}
                     </p>
                     <p style={{ 
                       margin: 0, 
-                      color: 'var(--color-text-secondary)', 
-                      fontSize: '0.875rem' 
+                      color: 'var(--color-text-tertiary)', 
+                      fontSize: '0.875rem',
+                      fontWeight: '500'
                     }}>
                       {comment.createdAt ? new Date(comment.createdAt).toLocaleString('ko-KR', {
                         year: 'numeric',

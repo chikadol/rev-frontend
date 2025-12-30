@@ -52,7 +52,7 @@ export default function BoardPage() {
 
   return (
     <div>
-      <div style={{ marginBottom: 'var(--spacing-xl)' }}>
+      <div style={{ marginBottom: 'var(--spacing-2xl)' }}>
         <Link 
           to="/" 
           style={{ 
@@ -62,16 +62,28 @@ export default function BoardPage() {
             display: 'inline-flex',
             alignItems: 'center',
             gap: 'var(--spacing-sm)',
-            marginBottom: 'var(--spacing-md)'
+            marginBottom: 'var(--spacing-lg)',
+            fontWeight: '500',
+            transition: 'all var(--transition-base)'
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.color = 'var(--color-primary)';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.color = 'var(--color-text-secondary)';
           }}
         >
           ← 게시판 목록
         </Link>
         <h1 style={{ 
           margin: '0 0 var(--spacing-sm) 0',
-          fontSize: '2rem',
-          fontWeight: '700',
-          letterSpacing: '-0.02em'
+          fontSize: 'clamp(1.75rem, 4vw, 2.5rem)',
+          fontWeight: '800',
+          letterSpacing: '-0.03em',
+          background: 'linear-gradient(135deg, var(--color-primary) 0%, var(--color-accent) 100%)',
+          WebkitBackgroundClip: 'text',
+          WebkitTextFillColor: 'transparent',
+          backgroundClip: 'text'
         }}>
           {board.name}
         </h1>
@@ -79,7 +91,8 @@ export default function BoardPage() {
           <p style={{ 
             margin: 0,
             color: 'var(--color-text-secondary)', 
-            fontSize: '0.9375rem'
+            fontSize: '0.9375rem',
+            lineHeight: 1.6
           }}>
             {board.description}
           </p>
@@ -87,27 +100,40 @@ export default function BoardPage() {
       </div>
 
       <div style={{ 
-        marginBottom: 'var(--spacing-lg)', 
+        marginBottom: 'var(--spacing-xl)', 
         display: 'flex', 
-        justifyContent: 'space-between', 
+        justifyContent: 'flex-end', 
         alignItems: 'center' 
       }}>
         <Link
           to={`/boards/${boardId}/threads/new`}
           className="btn btn-primary"
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.5rem',
+            fontWeight: '600'
+          }}
         >
-          + 새 글 작성
+          <span>+</span>
+          <span>새 글 작성</span>
         </Link>
       </div>
 
-      <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
+      <div className="card" style={{ 
+        padding: 0, 
+        overflow: 'hidden',
+        border: '1px solid var(--color-border-light)'
+      }}>
         {threads.content.length === 0 ? (
           <div style={{ 
-            padding: 'var(--spacing-2xl)', 
+            padding: 'var(--spacing-3xl)', 
             textAlign: 'center',
-            color: 'var(--color-text-secondary)'
+            color: 'var(--color-text-secondary)',
+            background: 'var(--color-bg-card)'
           }}>
-            <p style={{ fontSize: '1.125rem', margin: 0 }}>게시글이 없습니다.</p>
+            <div style={{ fontSize: '4rem', marginBottom: 'var(--spacing-md)' }}>📝</div>
+            <p style={{ fontSize: '1.125rem', margin: 0, fontWeight: '500' }}>게시글이 없습니다.</p>
             <p style={{ fontSize: '0.9375rem', marginTop: 'var(--spacing-sm)' }}>
               첫 번째 게시글을 작성해보세요!
             </p>
@@ -120,25 +146,34 @@ export default function BoardPage() {
                 to={`/threads/${thread.id}`}
                 style={{
                   display: 'block',
-                  padding: 'var(--spacing-lg)',
-                  borderBottom: index < threads.content.length - 1 ? '1px solid var(--color-border)' : 'none',
+                  padding: 'var(--spacing-xl)',
+                  borderBottom: index < threads.content.length - 1 ? '1px solid var(--color-border-light)' : 'none',
                   textDecoration: 'none',
                   color: 'inherit',
-                  transition: 'background-color 0.2s ease'
+                  transition: 'all var(--transition-base)',
+                  animation: `fadeIn 0.4s ease-out ${index * 0.05}s both`
                 }}
-                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--color-bg-secondary)'}
-                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = 'var(--color-bg-secondary)';
+                  e.currentTarget.style.transform = 'translateX(4px)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = 'transparent';
+                  e.currentTarget.style.transform = 'translateX(0)';
+                }}
               >
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 'var(--spacing-md)' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 'var(--spacing-lg)' }}>
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <h3 style={{ 
-                      margin: '0 0 var(--spacing-sm) 0',
-                      fontSize: '1.125rem',
-                      fontWeight: '600',
+                      margin: '0 0 var(--spacing-md) 0',
+                      fontSize: '1.25rem',
+                      fontWeight: '700',
                       color: 'var(--color-text)',
-                      overflow: 'hidden',
-                      textOverflow: 'ellipsis',
-                      whiteSpace: 'nowrap'
+                      lineHeight: 1.4,
+                      display: '-webkit-box',
+                      WebkitLineClamp: 2,
+                      WebkitBoxOrient: 'vertical',
+                      overflow: 'hidden'
                     }}>
                       {thread.title}
                     </h3>
@@ -147,7 +182,7 @@ export default function BoardPage() {
                         display: 'flex', 
                         gap: 'var(--spacing-sm)', 
                         flexWrap: 'wrap',
-                        marginBottom: 'var(--spacing-sm)'
+                        marginBottom: 'var(--spacing-md)'
                       }}>
                         {thread.tags.map(tag => (
                           <span
@@ -158,23 +193,11 @@ export default function BoardPage() {
                                 setSelectedTags([...selectedTags, tag]);
                               }
                             }}
+                            className="badge badge-primary"
                             style={{
-                              background: 'var(--color-bg-secondary)',
-                              color: 'var(--color-primary)',
-                              padding: '0.25rem 0.625rem',
-                              borderRadius: 'var(--radius-full)',
                               fontSize: '0.8125rem',
-                              fontWeight: '500',
-                              cursor: 'pointer',
-                              transition: 'all 0.2s ease'
-                            }}
-                            onMouseEnter={(e) => {
-                              e.currentTarget.style.background = 'var(--color-primary)';
-                              e.currentTarget.style.color = 'white';
-                            }}
-                            onMouseLeave={(e) => {
-                              e.currentTarget.style.background = 'var(--color-bg-secondary)';
-                              e.currentTarget.style.color = 'var(--color-primary)';
+                              padding: '0.375rem 0.75rem',
+                              cursor: 'pointer'
                             }}
                           >
                             #{tag}
@@ -187,9 +210,10 @@ export default function BoardPage() {
                       gap: 'var(--spacing-md)', 
                       alignItems: 'center',
                       fontSize: '0.875rem',
-                      color: 'var(--color-text-secondary)'
+                      color: 'var(--color-text-tertiary)',
+                      fontWeight: '500'
                     }}>
-                      <span>{thread.authorId ? thread.authorId.substring(0, 8) : '익명'}</span>
+                      <span>👤 {thread.authorId ? thread.authorId.substring(0, 8) : '익명'}</span>
                       <span>·</span>
                       <span>
                         {thread.createdAt ? new Date(thread.createdAt).toLocaleDateString('ko-KR', {

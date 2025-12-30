@@ -208,28 +208,49 @@ export default function PerformancesPage() {
         display: 'flex', 
         justifyContent: 'space-between', 
         alignItems: 'center', 
-        marginBottom: 'var(--spacing-xl)' 
+        marginBottom: 'var(--spacing-2xl)',
+        flexWrap: 'wrap',
+        gap: 'var(--spacing-md)'
       }}>
-        <h1 style={{ 
-          margin: 0,
-          fontSize: '2rem',
-          fontWeight: '700',
-          letterSpacing: '-0.02em'
-        }}>
-          공연 일정
-        </h1>
-        <div style={{ display: 'flex', gap: 'var(--spacing-sm)', alignItems: 'center' }}>
+        <div>
+          <h1 style={{ 
+            margin: '0 0 var(--spacing-xs) 0',
+            fontSize: 'clamp(1.75rem, 4vw, 2.5rem)',
+            fontWeight: '800',
+            letterSpacing: '-0.03em',
+            background: 'linear-gradient(135deg, var(--color-primary) 0%, var(--color-accent) 100%)',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+            backgroundClip: 'text'
+          }}>
+            공연 일정
+          </h1>
+          <p style={{
+            margin: 0,
+            color: 'var(--color-text-secondary)',
+            fontSize: '0.9375rem'
+          }}>
+            다가오는 공연을 확인하고 예매하세요
+          </p>
+        </div>
+        <div style={{ display: 'flex', gap: 'var(--spacing-sm)', alignItems: 'center', flexWrap: 'wrap' }}>
           <button
             onClick={() => setFilter('upcoming')}
             className={filter === 'upcoming' ? 'btn btn-primary' : 'btn btn-secondary'}
-            style={{ fontSize: '0.9375rem' }}
+            style={{ 
+              fontSize: '0.9375rem',
+              fontWeight: filter === 'upcoming' ? '600' : '500'
+            }}
           >
             예정된 공연
           </button>
           <button
             onClick={() => setFilter('all')}
             className={filter === 'all' ? 'btn btn-primary' : 'btn btn-secondary'}
-            style={{ fontSize: '0.9375rem' }}
+            style={{ 
+              fontSize: '0.9375rem',
+              fontWeight: filter === 'all' ? '600' : '500'
+            }}
           >
             전체
           </button>
@@ -237,19 +258,37 @@ export default function PerformancesPage() {
             onClick={() => handleCrawl(false)}
             disabled={crawling}
             className="btn btn-secondary"
-            style={{ fontSize: '0.9375rem' }}
+            style={{ 
+              fontSize: '0.9375rem',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.5rem'
+            }}
             title="공연 정보 크롤링"
           >
-            {crawling ? '크롤링 중...' : '🔄 새로고침'}
+            <span style={{ 
+              display: 'inline-block',
+              animation: crawling ? 'spin 1s linear infinite' : 'none'
+            }}>
+              🔄
+            </span>
+            {crawling ? '크롤링 중...' : '새로고침'}
           </button>
           {localStorage.getItem('accessToken') && (
             <button
               onClick={() => navigate('/performances/new')}
               className="btn btn-primary"
-              style={{ fontSize: '0.9375rem' }}
+              style={{ 
+                fontSize: '0.9375rem',
+                fontWeight: '600',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem'
+              }}
               title="공연 등록 (지하아이돌 권한 필요)"
             >
-              + 공연 등록
+              <span>+</span>
+              <span>공연 등록</span>
             </button>
           )}
         </div>
@@ -275,31 +314,57 @@ export default function PerformancesPage() {
         alignItems: 'start'
       }}>
         {/* 캘린더 */}
-        <div className="card" style={{ padding: 'var(--spacing-lg)' }}>
+        <div className="card" style={{ 
+          padding: 'var(--spacing-xl)',
+          position: 'sticky',
+          top: '100px'
+        }}>
           <div style={{ 
             display: 'flex',
             justifyContent: 'space-between',
             alignItems: 'center',
-            marginBottom: 'var(--spacing-lg)'
+            marginBottom: 'var(--spacing-xl)'
           }}>
             <button
               onClick={goToPreviousMonth}
               className="btn btn-secondary"
-              style={{ padding: '0.5rem', minWidth: 'auto', fontSize: '1rem' }}
+              style={{ 
+                padding: '0.625rem', 
+                minWidth: '40px', 
+                height: '40px',
+                fontSize: '1.25rem',
+                fontWeight: '600',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                borderRadius: 'var(--radius-md)'
+              }}
             >
               ‹
             </button>
             <div style={{ 
               textAlign: 'center',
-              fontSize: '1.25rem',
-              fontWeight: '600'
+              fontSize: '1.125rem',
+              fontWeight: '700',
+              color: 'var(--color-text)',
+              letterSpacing: '-0.01em'
             }}>
               {currentMonth.toLocaleDateString('ko-KR', { year: 'numeric', month: 'long' })}
             </div>
             <button
               onClick={goToNextMonth}
               className="btn btn-secondary"
-              style={{ padding: '0.5rem', minWidth: 'auto', fontSize: '1rem' }}
+              style={{ 
+                padding: '0.625rem', 
+                minWidth: '40px', 
+                height: '40px',
+                fontSize: '1.25rem',
+                fontWeight: '600',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                borderRadius: 'var(--radius-md)'
+              }}
             >
               ›
             </button>
@@ -309,14 +374,15 @@ export default function PerformancesPage() {
             display: 'grid', 
             gridTemplateColumns: 'repeat(7, 1fr)', 
             gap: 'var(--spacing-xs)',
-            marginBottom: 'var(--spacing-sm)'
+            marginBottom: 'var(--spacing-md)'
           }}>
-            {['일', '월', '화', '수', '목', '금', '토'].map(day => (
+            {['일', '월', '화', '수', '목', '금', '토'].map((day, index) => (
               <div key={day} style={{ 
                 textAlign: 'center', 
-                fontWeight: '600',
-                fontSize: '0.875rem',
-                color: 'var(--color-text-secondary)'
+                fontWeight: '700',
+                fontSize: '0.8125rem',
+                color: index === 0 ? 'var(--color-error)' : index === 6 ? 'var(--color-info)' : 'var(--color-text-secondary)',
+                padding: 'var(--spacing-xs)'
               }}>
                 {day}
               </div>
@@ -346,36 +412,49 @@ export default function PerformancesPage() {
                   style={{
                     aspectRatio: '1',
                     padding: 'var(--spacing-xs)',
-                    border: '1px solid var(--color-border)',
-                    borderRadius: 'var(--radius)',
+                    border: isSelected 
+                      ? '2px solid var(--color-primary)' 
+                      : isToday 
+                        ? '2px solid var(--color-primary-light)' 
+                        : '1.5px solid var(--color-border-light)',
+                    borderRadius: 'var(--radius-md)',
                     background: isSelected 
-                      ? 'var(--color-primary)' 
+                      ? 'linear-gradient(135deg, var(--color-primary) 0%, var(--color-accent) 100%)' 
                       : hasPerf 
-                        ? 'var(--color-bg-tertiary)' 
+                        ? 'rgba(139, 92, 246, 0.08)' 
                         : 'transparent',
                     color: isSelected 
                       ? 'white' 
                       : isToday 
                         ? 'var(--color-primary)' 
                         : 'var(--color-text)',
-                    fontWeight: isToday || isSelected ? '600' : '400',
+                    fontWeight: isToday || isSelected ? '700' : hasPerf ? '600' : '500',
                     fontSize: '0.875rem',
                     cursor: 'pointer',
-                    transition: 'all 0.2s ease',
+                    transition: 'all var(--transition-base)',
                     display: 'flex',
                     flexDirection: 'column',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    position: 'relative'
+                    position: 'relative',
+                    boxShadow: isSelected ? 'var(--shadow-md)' : 'none'
                   }}
                   onMouseEnter={(e) => {
                     if (!isSelected) {
-                      e.currentTarget.style.background = hasPerf ? 'var(--color-bg-secondary)' : 'var(--color-bg-tertiary)';
+                      e.currentTarget.style.transform = 'scale(1.1)';
+                      e.currentTarget.style.background = hasPerf 
+                        ? 'rgba(139, 92, 246, 0.15)' 
+                        : 'var(--color-bg-secondary)';
+                      e.currentTarget.style.boxShadow = 'var(--shadow-sm)';
                     }
                   }}
                   onMouseLeave={(e) => {
                     if (!isSelected) {
-                      e.currentTarget.style.background = hasPerf ? 'var(--color-bg-tertiary)' : 'transparent';
+                      e.currentTarget.style.transform = 'scale(1)';
+                      e.currentTarget.style.background = hasPerf 
+                        ? 'rgba(139, 92, 246, 0.08)' 
+                        : 'transparent';
+                      e.currentTarget.style.boxShadow = 'none';
                     }
                   }}
                 >
@@ -384,7 +463,15 @@ export default function PerformancesPage() {
                     <span style={{ 
                       fontSize: '0.625rem',
                       marginTop: '2px',
-                      opacity: 0.8
+                      opacity: isSelected ? 1 : 0.7,
+                      fontWeight: '700',
+                      background: isSelected ? 'rgba(255, 255, 255, 0.3)' : 'var(--color-primary)',
+                      color: isSelected ? 'white' : 'white',
+                      borderRadius: 'var(--radius-full)',
+                      padding: '0.125rem 0.375rem',
+                      minWidth: '18px',
+                      display: 'inline-block',
+                      textAlign: 'center'
                     }}>
                       {perfCount}
                     </span>
@@ -415,7 +502,7 @@ export default function PerformancesPage() {
                 </div>
               ) : (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-md)' }}>
-                  {selectedDatePerformances.map(performance => (
+                  {selectedDatePerformances.map((performance, index) => (
                     <Link
                       key={performance.id}
                       to={`/performances/${performance.id}`}
@@ -424,46 +511,84 @@ export default function PerformancesPage() {
                         textDecoration: 'none',
                         color: 'inherit',
                         display: 'block',
-                        padding: 'var(--spacing-lg)'
+                        padding: 'var(--spacing-xl)',
+                        animation: `fadeIn 0.4s ease-out ${index * 0.1}s both`
                       }}
                     >
                       <div style={{ 
                         display: 'flex', 
                         justifyContent: 'space-between',
                         alignItems: 'flex-start',
-                        gap: 'var(--spacing-lg)'
+                        gap: 'var(--spacing-xl)'
                       }}>
                         <div style={{ flex: 1 }}>
                           <h3 style={{ 
-                            margin: '0 0 var(--spacing-sm) 0', 
-                            fontSize: '1.25rem',
-                            fontWeight: '600',
-                            color: 'var(--color-text)'
+                            margin: '0 0 var(--spacing-md) 0', 
+                            fontSize: '1.375rem',
+                            fontWeight: '700',
+                            letterSpacing: '-0.01em',
+                            color: 'var(--color-text)',
+                            lineHeight: 1.3
                           }}>
                             {performance.title}
                           </h3>
                           <div style={{ 
-                            marginBottom: 'var(--spacing-sm)', 
+                            marginBottom: 'var(--spacing-md)', 
                             color: 'var(--color-text-secondary)', 
                             fontSize: '0.9375rem',
-                            lineHeight: '1.6'
+                            lineHeight: '1.6',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            gap: '0.5rem'
                           }}>
-                            <p style={{ margin: '0 0 var(--spacing-xs) 0' }}>
-                              📍 {performance.venue}
-                            </p>
-                            <p style={{ margin: 0 }}>
-                              🕐 {formatTime(performance.performanceDateTime)}
-                            </p>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                              <span style={{ fontSize: '1.1rem' }}>📍</span>
+                              <span>{performance.venue}</span>
+                            </div>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                              <span style={{ fontSize: '1.1rem' }}>🕐</span>
+                              <span>{formatTime(performance.performanceDateTime)}</span>
+                            </div>
                           </div>
                           {performance.description && (
                             <p style={{ 
                               margin: 0,
-                              fontSize: '0.875rem',
+                              fontSize: '0.9375rem',
                               color: 'var(--color-text-secondary)',
-                              lineHeight: '1.5'
+                              lineHeight: '1.6',
+                              display: '-webkit-box',
+                              WebkitLineClamp: 2,
+                              WebkitBoxOrient: 'vertical',
+                              overflow: 'hidden'
                             }}>
                               {performance.description}
                             </p>
+                          )}
+                          {performance.performers && performance.performers.length > 0 && (
+                            <div style={{
+                              marginTop: 'var(--spacing-md)',
+                              display: 'flex',
+                              flexWrap: 'wrap',
+                              gap: '0.5rem'
+                            }}>
+                              {performance.performers.slice(0, 3).map((performer, idx) => (
+                                <span
+                                  key={idx}
+                                  className="badge badge-primary"
+                                  style={{
+                                    fontSize: '0.8125rem',
+                                    padding: '0.375rem 0.75rem'
+                                  }}
+                                >
+                                  {performer}
+                                </span>
+                              ))}
+                              {performance.performers.length > 3 && (
+                                <span className="badge" style={{ fontSize: '0.8125rem', padding: '0.375rem 0.75rem' }}>
+                                  +{performance.performers.length - 3}
+                                </span>
+                              )}
+                            </div>
                           )}
                         </div>
                         <div style={{ 
@@ -471,18 +596,36 @@ export default function PerformancesPage() {
                           display: 'flex',
                           flexDirection: 'column',
                           alignItems: 'flex-end',
-                          gap: 'var(--spacing-xs)'
+                          gap: 'var(--spacing-sm)',
+                          minWidth: '120px'
                         }}>
-                          <span style={{ 
-                            fontSize: '1.5rem', 
-                            fontWeight: '700', 
-                            color: 'var(--color-primary)' 
-                          }}>
-                            {performance.price.toLocaleString()}원
-                          </span>
-                          <span style={{ 
-                            fontSize: '0.875rem',
-                            color: performance.status === 'UPCOMING' ? 'var(--color-info)' : 'var(--color-text-tertiary)'
+                          <div>
+                            <span style={{ 
+                              fontSize: '1.75rem', 
+                              fontWeight: '800', 
+                              background: 'linear-gradient(135deg, var(--color-primary) 0%, var(--color-accent) 100%)',
+                              WebkitBackgroundClip: 'text',
+                              WebkitTextFillColor: 'transparent',
+                              backgroundClip: 'text'
+                            }}>
+                              {performance.price.toLocaleString()}원
+                            </span>
+                          </div>
+                          <span className="badge" style={{
+                            background: performance.status === 'UPCOMING' 
+                              ? 'rgba(59, 130, 246, 0.1)' 
+                              : performance.status === 'ONGOING'
+                              ? 'rgba(16, 185, 129, 0.1)'
+                              : 'rgba(148, 163, 184, 0.1)',
+                            color: performance.status === 'UPCOMING' 
+                              ? 'var(--color-info)' 
+                              : performance.status === 'ONGOING'
+                              ? 'var(--color-success)'
+                              : 'var(--color-text-tertiary)',
+                            border: 'none',
+                            fontSize: '0.8125rem',
+                            padding: '0.375rem 0.75rem',
+                            fontWeight: '600'
                           }}>
                             {performance.status === 'UPCOMING' ? '예정' : performance.status === 'ONGOING' ? '진행중' : '종료'}
                           </span>

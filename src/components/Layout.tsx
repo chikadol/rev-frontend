@@ -12,6 +12,7 @@ export default function Layout({ children }: LayoutProps) {
   const location = useLocation();
   const [unreadCount, setUnreadCount] = useState(0);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
     const token = localStorage.getItem('accessToken');
@@ -21,15 +22,21 @@ export default function Layout({ children }: LayoutProps) {
       apiClient.getUnreadNotificationCount()
         .then(res => setUnreadCount(res.unreadCount))
         .catch((err) => {
-          // 알림 카운트 로드 실패 시 무시 (알림 기능이 없거나 서버 에러)
-          // 인증 에러가 아닌 경우에는 토큰을 유지하고 계속 진행
           console.warn('알림 카운트 로드 실패 (무시됨):', err);
           setUnreadCount(0);
         });
     } else {
       setUnreadCount(0);
     }
-  }, [location.pathname]); // location이 변경될 때마다 인증 상태 확인
+  }, [location.pathname]);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 20);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   const handleLogout = () => {
     localStorage.removeItem('accessToken');
@@ -38,147 +45,170 @@ export default function Layout({ children }: LayoutProps) {
     navigate('/login');
   };
 
+  const navLinks = [
+    { to: '/performances', label: '공연', icon: '🎫' },
+    { to: '/boards', label: '게시판', icon: '💬', requireAuth: true },
+    { to: '/idols', label: '아이돌', icon: '🌟' },
+    { to: '/my-tickets', label: '내 티켓', icon: '🎟️', requireAuth: true },
+    { to: '/notifications', label: '알림', icon: '🔔', requireAuth: true, badge: unreadCount },
+    { to: '/me', label: '내정보', icon: '👤', requireAuth: true },
+  ].filter(link => !link.requireAuth || isAuthenticated);
+
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', background: 'var(--color-bg-secondary)' }}>
+    <div style={{ 
+      minHeight: '100vh', 
+      display: 'flex', 
+      flexDirection: 'column',
+      background: 'linear-gradient(135deg, #fafbfc 0%, #f4f6f8 50%, #eef1f4 100%)',
+      backgroundAttachment: 'fixed'
+    }}>
       <header style={{
-        background: 'var(--color-bg)',
-        borderBottom: '1px solid var(--color-border)',
+        background: scrolled 
+          ? 'rgba(255, 255, 255, 0.95)' 
+          : 'rgba(255, 255, 255, 0.8)',
+        backdropFilter: 'blur(20px) saturate(180%)',
+        WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+        borderBottom: scrolled 
+          ? '1px solid var(--color-border)' 
+          : '1px solid transparent',
         padding: 'var(--spacing-md) var(--spacing-xl)',
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center',
-        boxShadow: 'var(--color-shadow-sm)',
+        boxShadow: scrolled ? 'var(--shadow-sm)' : 'none',
         position: 'sticky',
         top: 0,
-        zIndex: 100,
-        backdropFilter: 'blur(10px)',
-        backgroundColor: 'rgba(255, 255, 255, 0.9)'
+        zIndex: 1000,
+        transition: 'all var(--transition-base)'
       }}>
-        <Link to="/" style={{ 
-          color: 'var(--color-text)', 
-          textDecoration: 'none', 
-          fontSize: '1.5rem', 
-          fontWeight: '700',
-          letterSpacing: '-0.02em'
-        }}>
+        <Link 
+          to="/" 
+          style={{ 
+            color: 'var(--color-text)', 
+            textDecoration: 'none', 
+            fontSize: '1.75rem', 
+            fontWeight: '800',
+            letterSpacing: '-0.03em',
+            background: 'linear-gradient(135deg, var(--color-primary) 0%, var(--color-accent) 100%)',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+            backgroundClip: 'text',
+            transition: 'all var(--transition-base)'
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.transform = 'scale(1.05)';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.transform = 'scale(1)';
+          }}
+        >
           RE-V
         </Link>
         
-        <nav style={{ display: 'flex', gap: 'var(--spacing-lg)', alignItems: 'center' }}>
-          <Link to="/performances" style={{ 
-            color: 'var(--color-text-secondary)', 
-            textDecoration: 'none',
-            fontSize: '0.9375rem',
-            fontWeight: '500',
-            transition: 'color 0.2s ease'
-          }}
-          onMouseEnter={(e) => e.currentTarget.style.color = 'var(--color-text)'}
-          onMouseLeave={(e) => e.currentTarget.style.color = 'var(--color-text-secondary)'}
-          >
-            공연
-          </Link>
-          {isAuthenticated ? (
-            <>
-              <Link to="/boards" style={{ 
-                color: 'var(--color-text-secondary)', 
+        <nav style={{ 
+          display: 'flex', 
+          gap: 'var(--spacing-md)', 
+          alignItems: 'center',
+          flexWrap: 'wrap'
+        }}>
+          {navLinks.map((link) => (
+            <Link
+              key={link.to}
+              to={link.to}
+              style={{ 
+                color: location.pathname === link.to 
+                  ? 'var(--color-primary)' 
+                  : 'var(--color-text-secondary)', 
                 textDecoration: 'none',
                 fontSize: '0.9375rem',
-                fontWeight: '500',
-                transition: 'color 0.2s ease'
-              }}
-              onMouseEnter={(e) => e.currentTarget.style.color = 'var(--color-text)'}
-              onMouseLeave={(e) => e.currentTarget.style.color = 'var(--color-text-secondary)'}
-              >
-                게시판
-              </Link>
-              <Link to="/my-tickets" style={{ 
-                color: 'var(--color-text-secondary)', 
-                textDecoration: 'none',
-                fontSize: '0.9375rem',
-                fontWeight: '500',
-                transition: 'color 0.2s ease'
-              }}
-              onMouseEnter={(e) => e.currentTarget.style.color = 'var(--color-text)'}
-              onMouseLeave={(e) => e.currentTarget.style.color = 'var(--color-text-secondary)'}
-              >
-                내 티켓
-              </Link>
-              <Link to="/me" style={{ 
-                color: 'var(--color-text-secondary)', 
-                textDecoration: 'none',
-                fontSize: '0.9375rem',
-                fontWeight: '500',
-                transition: 'color 0.2s ease'
-              }}
-              onMouseEnter={(e) => e.currentTarget.style.color = 'var(--color-text)'}
-              onMouseLeave={(e) => e.currentTarget.style.color = 'var(--color-text-secondary)'}
-              >
-                내 정보
-              </Link>
-              <Link to="/notifications" style={{ 
-                color: 'var(--color-text-secondary)', 
-                textDecoration: 'none',
-                fontSize: '0.9375rem',
-                fontWeight: '500',
+                fontWeight: location.pathname === link.to ? '600' : '500',
+                padding: '0.5rem 0.75rem',
+                borderRadius: 'var(--radius-md)',
+                transition: 'all var(--transition-base)',
                 position: 'relative',
-                transition: 'color 0.2s ease'
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem',
+                background: location.pathname === link.to 
+                  ? 'rgba(139, 92, 246, 0.1)' 
+                  : 'transparent'
               }}
-              onMouseEnter={(e) => e.currentTarget.style.color = 'var(--color-text)'}
-              onMouseLeave={(e) => e.currentTarget.style.color = 'var(--color-text-secondary)'}
-              >
-                알림
-                {unreadCount > 0 && (
-                  <span style={{
-                    position: 'absolute',
-                    top: '-6px',
-                    right: '-12px',
-                    background: 'var(--color-error)',
-                    borderRadius: 'var(--radius-full)',
-                    width: '18px',
-                    height: '18px',
-                    fontSize: '0.6875rem',
-                    fontWeight: '600',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    color: 'white',
-                    boxShadow: 'var(--color-shadow-sm)'
-                  }}>
-                    {unreadCount > 9 ? '9+' : unreadCount}
-                  </span>
-                )}
-              </Link>
-              <button 
-                onClick={handleLogout} 
-                style={{
-                  background: 'transparent',
-                  border: '1px solid var(--color-border)',
-                  color: 'var(--color-text-secondary)',
-                  padding: '0.5rem 1rem',
-                  borderRadius: 'var(--radius)',
-                  fontSize: '0.9375rem',
-                  fontWeight: '500',
-                  transition: 'all 0.2s ease'
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.borderColor = 'var(--color-text-secondary)';
+              onMouseEnter={(e) => {
+                if (location.pathname !== link.to) {
                   e.currentTarget.style.color = 'var(--color-text)';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.borderColor = 'var(--color-border)';
+                  e.currentTarget.style.background = 'var(--color-bg-secondary)';
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (location.pathname !== link.to) {
                   e.currentTarget.style.color = 'var(--color-text-secondary)';
-                }}
-              >
-                로그아웃
-              </button>
-            </>
+                  e.currentTarget.style.background = 'transparent';
+                }
+              }}
+            >
+              <span style={{ fontSize: '1.1rem' }}>{link.icon}</span>
+              <span>{link.label}</span>
+              {link.badge && link.badge > 0 && (
+                <span style={{
+                  position: 'absolute',
+                  top: '-2px',
+                  right: '-2px',
+                  background: 'linear-gradient(135deg, var(--color-error) 0%, #dc2626 100%)',
+                  borderRadius: 'var(--radius-full)',
+                  width: '20px',
+                  height: '20px',
+                  fontSize: '0.6875rem',
+                  fontWeight: '700',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: 'white',
+                  boxShadow: 'var(--shadow-sm)',
+                  border: '2px solid white'
+                }}>
+                  {link.badge > 9 ? '9+' : link.badge}
+                </span>
+              )}
+            </Link>
+          ))}
+          
+          {isAuthenticated ? (
+            <button 
+              onClick={handleLogout} 
+              style={{
+                background: 'var(--color-bg-secondary)',
+                border: '1.5px solid var(--color-border)',
+                color: 'var(--color-text-secondary)',
+                padding: '0.5rem 1rem',
+                borderRadius: 'var(--radius-md)',
+                fontSize: '0.9375rem',
+                fontWeight: '500',
+                transition: 'all var(--transition-base)',
+                cursor: 'pointer'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.borderColor = 'var(--color-error-light)';
+                e.currentTarget.style.color = 'var(--color-error)';
+                e.currentTarget.style.background = 'rgba(239, 68, 68, 0.1)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.borderColor = 'var(--color-border)';
+                e.currentTarget.style.color = 'var(--color-text-secondary)';
+                e.currentTarget.style.background = 'var(--color-bg-secondary)';
+              }}
+            >
+              로그아웃
+            </button>
           ) : (
-            <Link to="/login" style={{ 
-              color: 'var(--color-primary)', 
-              textDecoration: 'none',
-              fontSize: '0.9375rem',
-              fontWeight: '500'
-            }}>
+            <Link 
+              to="/login" 
+              className="btn btn-primary"
+              style={{ 
+                textDecoration: 'none',
+                fontSize: '0.9375rem',
+                padding: '0.5rem 1.25rem'
+              }}
+            >
               로그인
             </Link>
           )}
@@ -188,7 +218,7 @@ export default function Layout({ children }: LayoutProps) {
       <main style={{ 
         flex: 1, 
         padding: 'var(--spacing-xl)', 
-        maxWidth: '1200px', 
+        maxWidth: '1400px', 
         margin: '0 auto', 
         width: '100%',
         boxSizing: 'border-box'
@@ -197,15 +227,19 @@ export default function Layout({ children }: LayoutProps) {
       </main>
       
       <footer style={{
-        background: 'var(--color-bg)',
-        borderTop: '1px solid var(--color-border)',
-        padding: 'var(--spacing-lg)',
+        background: 'rgba(255, 255, 255, 0.6)',
+        backdropFilter: 'blur(10px)',
+        borderTop: '1px solid var(--color-border-light)',
+        padding: 'var(--spacing-xl)',
         textAlign: 'center',
         marginTop: 'auto',
         color: 'var(--color-text-tertiary)',
-        fontSize: '0.875rem'
+        fontSize: '0.875rem',
+        fontWeight: '400'
       }}>
-        <p style={{ margin: 0 }}>© 2024 RE-V. All rights reserved.</p>
+        <p style={{ margin: 0, lineHeight: 1.6 }}>
+          © 2024 RE-V. 지하아이돌 공연과 커뮤니티를 한 곳에서.
+        </p>
       </footer>
     </div>
   );
