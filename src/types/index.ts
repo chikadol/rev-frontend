@@ -36,6 +36,7 @@ export interface Comment {
   parentId?: string;
   content: string;
   createdAt?: string;
+  isAuthor?: boolean; // 게시물 작성자인지 여부
 }
 
 export interface Notification {

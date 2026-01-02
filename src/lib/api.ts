@@ -148,6 +148,28 @@ class ApiClient {
     boardId: string,
     page: number = 0,
     size: number = 20,
+    tags?: string[],
+    search?: string
+  ): Promise<PageResponse<Thread>> {
+    const params = new URLSearchParams({
+      page: page.toString(),
+      size: size.toString(),
+    });
+    if (tags && tags.length > 0) {
+      tags.forEach(tag => params.append('tags', tag));
+    }
+    if (search) {
+      params.append('search', search);
+    }
+    return this.request<PageResponse<Thread>>(
+      `/api/threads/${boardId}/threads?${params.toString()}`
+    );
+  }
+
+  async getThreadsOld(
+    boardId: string,
+    page: number = 0,
+    size: number = 20,
     tags?: string[]
   ): Promise<PageResponse<Thread>> {
     const params = new URLSearchParams({
@@ -273,6 +295,11 @@ class ApiClient {
   async getMyComments(page: number = 0, size: number = 20): Promise<PageResponse<MyComment>> {
     const params = new URLSearchParams({ page: page.toString(), size: size.toString() });
     return this.request<PageResponse<MyComment>>(`/api/me/comments?${params.toString()}`);
+  }
+
+  async getMyThreads(page: number = 0, size: number = 20): Promise<PageResponse<Thread>> {
+    const params = new URLSearchParams({ page: page.toString(), size: size.toString() });
+    return this.request<PageResponse<Thread>>(`/api/me/threads?${params.toString()}`);
   }
 
   // Performances

@@ -1,17 +1,20 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { apiClient } from '../lib/api';
-import type { MeOverview, BookmarkedThread, MyComment, PageResponse } from '../types';
+import type { MeOverview, BookmarkedThread, MyComment, Thread, PageResponse } from '../types';
 
 export default function MePage() {
   const navigate = useNavigate();
   const [overview, setOverview] = useState<MeOverview | null>(null);
+  const [threads, setThreads] = useState<Thread[]>([]);
+  const [threadsPage, setThreadsPage] = useState<PageResponse<Thread> | null>(null);
   const [bookmarks, setBookmarks] = useState<BookmarkedThread[]>([]);
   const [bookmarksPage, setBookmarksPage] = useState<PageResponse<BookmarkedThread> | null>(null);
   const [comments, setComments] = useState<MyComment[]>([]);
   const [commentsPage, setCommentsPage] = useState<PageResponse<MyComment> | null>(null);
-  const [activeTab, setActiveTab] = useState<'overview' | 'bookmarks' | 'comments'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'threads' | 'bookmarks' | 'comments'>('overview');
   const [loading, setLoading] = useState(true);
+  const [threadsPageNum, setThreadsPageNum] = useState(0);
   const [bookmarksPageNum, setBookmarksPageNum] = useState(0);
   const [commentsPageNum, setCommentsPageNum] = useState(0);
 
@@ -29,6 +32,24 @@ export default function MePage() {
       })
       .finally(() => setLoading(false));
   }, [navigate]);
+
+  useEffect(() => {
+    if (activeTab === 'threads') {
+      apiClient.getMyThreads(threadsPageNum, 20)
+        .then((pageData) => {
+          setThreadsPage(pageData);
+          setThreads(pageData.content);
+        })
+        .catch((err) => {
+          console.error('내 글 로드 실패:', err);
+          if (err.message?.includes('인증이 필요') || err.message?.includes('Unauthorized')) {
+            localStorage.removeItem('accessToken');
+            localStorage.removeItem('refreshToken');
+            navigate('/login');
+          }
+        });
+    }
+  }, [activeTab, threadsPageNum, navigate]);
 
   useEffect(() => {
     if (activeTab === 'bookmarks') {
@@ -148,6 +169,25 @@ export default function MePage() {
           요약
         </button>
         <button
+          onClick={() => setActiveTab('threads')}
+          style={{
+            padding: 'var(--spacing-md) var(--spacing-lg)',
+            background: activeTab === 'threads' 
+              ? 'linear-gradient(135deg, rgba(139, 92, 246, 0.1) 0%, rgba(236, 72, 153, 0.1) 100%)' 
+              : 'transparent',
+            color: activeTab === 'threads' ? 'var(--color-primary)' : 'var(--color-text-secondary)',
+            border: 'none',
+            borderBottom: activeTab === 'threads' ? '3px solid var(--color-primary)' : '3px solid transparent',
+            cursor: 'pointer',
+            fontWeight: activeTab === 'threads' ? '700' : '500',
+            fontSize: '0.9375rem',
+            transition: 'all var(--transition-base)',
+            borderRadius: 'var(--radius-md) var(--radius-md) 0 0'
+          }}
+        >
+          내 글
+        </button>
+        <button
           onClick={() => setActiveTab('bookmarks')}
           style={{
             padding: 'var(--spacing-md) var(--spacing-lg)',
@@ -193,12 +233,20 @@ export default function MePage() {
           gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
           gap: 'var(--spacing-xl)'
         }}>
-          <div className="card" style={{ 
-            textAlign: 'center', 
-            padding: 'var(--spacing-2xl)',
-            position: 'relative',
-            overflow: 'hidden'
-          }}>
+          <button
+            onClick={() => setActiveTab('threads')}
+            className="card card-hover"
+            style={{ 
+              textAlign: 'center', 
+              padding: 'var(--spacing-2xl)',
+              position: 'relative',
+              overflow: 'hidden',
+              border: 'none',
+              cursor: 'pointer',
+              background: 'var(--color-bg-card)',
+              width: '100%'
+            }}
+          >
             <div style={{
               position: 'absolute',
               top: 0,
@@ -219,13 +267,21 @@ export default function MePage() {
               {overview.threadCount}
             </div>
             <div style={{ color: 'var(--color-text-secondary)', fontSize: '0.9375rem', fontWeight: '500' }}>작성한 글</div>
-          </div>
-          <div className="card" style={{ 
-            textAlign: 'center', 
-            padding: 'var(--spacing-2xl)',
-            position: 'relative',
-            overflow: 'hidden'
-          }}>
+          </button>
+          <button
+            onClick={() => setActiveTab('comments')}
+            className="card card-hover"
+            style={{ 
+              textAlign: 'center', 
+              padding: 'var(--spacing-2xl)',
+              position: 'relative',
+              overflow: 'hidden',
+              border: 'none',
+              cursor: 'pointer',
+              background: 'var(--color-bg-card)',
+              width: '100%'
+            }}
+          >
             <div style={{
               position: 'absolute',
               top: 0,
@@ -243,13 +299,21 @@ export default function MePage() {
               {overview.commentCount}
             </div>
             <div style={{ color: 'var(--color-text-secondary)', fontSize: '0.9375rem', fontWeight: '500' }}>작성한 댓글</div>
-          </div>
-          <div className="card" style={{ 
-            textAlign: 'center', 
-            padding: 'var(--spacing-2xl)',
-            position: 'relative',
-            overflow: 'hidden'
-          }}>
+          </button>
+          <button
+            onClick={() => setActiveTab('bookmarks')}
+            className="card card-hover"
+            style={{ 
+              textAlign: 'center', 
+              padding: 'var(--spacing-2xl)',
+              position: 'relative',
+              overflow: 'hidden',
+              border: 'none',
+              cursor: 'pointer',
+              background: 'var(--color-bg-card)',
+              width: '100%'
+            }}
+          >
             <div style={{
               position: 'absolute',
               top: 0,
@@ -267,13 +331,21 @@ export default function MePage() {
               {overview.bookmarkCount}
             </div>
             <div style={{ color: 'var(--color-text-secondary)', fontSize: '0.9375rem', fontWeight: '500' }}>북마크</div>
-          </div>
-          <div className="card" style={{ 
-            textAlign: 'center', 
-            padding: 'var(--spacing-2xl)',
-            position: 'relative',
-            overflow: 'hidden'
-          }}>
+          </button>
+          <button
+            onClick={() => navigate('/notifications')}
+            className="card card-hover"
+            style={{ 
+              textAlign: 'center', 
+              padding: 'var(--spacing-2xl)',
+              position: 'relative',
+              overflow: 'hidden',
+              border: 'none',
+              cursor: 'pointer',
+              background: 'var(--color-bg-card)',
+              width: '100%'
+            }}
+          >
             <div style={{
               position: 'absolute',
               top: 0,
@@ -291,7 +363,131 @@ export default function MePage() {
               {overview.unreadNotificationCount}
             </div>
             <div style={{ color: 'var(--color-text-secondary)', fontSize: '0.9375rem', fontWeight: '500' }}>읽지 않은 알림</div>
-          </div>
+          </button>
+        </div>
+      )}
+
+      {activeTab === 'threads' && (
+        <div>
+          {threads.length === 0 ? (
+            <div className="card" style={{ 
+              textAlign: 'center', 
+              padding: 'var(--spacing-3xl)',
+              background: 'var(--color-bg-card)'
+            }}>
+              <div style={{ fontSize: '4rem', marginBottom: 'var(--spacing-md)' }}>📝</div>
+              <p style={{ 
+                color: 'var(--color-text-secondary)', 
+                fontSize: '1.125rem', 
+                margin: 0,
+                fontWeight: '500'
+              }}>
+                작성한 글이 없습니다.
+              </p>
+            </div>
+          ) : (
+            <>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-lg)' }}>
+                {threads.map((thread, index) => (
+                  <Link
+                    key={thread.id}
+                    to={`/threads/${thread.id}`}
+                    className="card card-hover"
+                    style={{
+                      textDecoration: 'none',
+                      color: 'inherit',
+                      padding: 'var(--spacing-xl)',
+                      animation: `fadeIn 0.4s ease-out ${index * 0.05}s both`
+                    }}
+                  >
+                    <h3 style={{ 
+                      margin: '0 0 var(--spacing-md) 0', 
+                      fontSize: '1.25rem',
+                      fontWeight: '700',
+                      color: 'var(--color-text)',
+                      lineHeight: 1.3
+                    }}>
+                      {thread.title}
+                    </h3>
+                    {thread.tags && thread.tags.length > 0 && (
+                      <div style={{ 
+                        marginBottom: 'var(--spacing-sm)',
+                        display: 'flex',
+                        flexWrap: 'wrap',
+                        gap: '0.5rem'
+                      }}>
+                        {thread.tags.map((tag, tagIndex) => (
+                          <span key={tagIndex} className="badge" style={{
+                            fontSize: '0.8125rem',
+                            padding: '0.375rem 0.75rem'
+                          }}>
+                            {tag}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                    <p style={{ 
+                      margin: 'var(--spacing-sm) 0', 
+                      color: 'var(--color-text-secondary)', 
+                      lineHeight: '1.7',
+                      fontSize: '0.9375rem',
+                      display: '-webkit-box',
+                      WebkitLineClamp: 2,
+                      WebkitBoxOrient: 'vertical',
+                      overflow: 'hidden'
+                    }}>
+                      {thread.content}
+                    </p>
+                    <p style={{ 
+                      margin: 0, 
+                      color: 'var(--color-text-tertiary)', 
+                      fontSize: '0.875rem',
+                      fontWeight: '500'
+                    }}>
+                      {thread.createdAt ? new Date(thread.createdAt).toLocaleDateString('ko-KR', {
+                        year: 'numeric',
+                        month: 'short',
+                        day: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                      }) : '-'}
+                    </p>
+                  </Link>
+                ))}
+              </div>
+              {threadsPage && threadsPage.totalPages > 1 && (
+                <div style={{ 
+                  marginTop: 'var(--spacing-xl)', 
+                  display: 'flex', 
+                  justifyContent: 'center', 
+                  alignItems: 'center',
+                  gap: 'var(--spacing-sm)'
+                }}>
+                  <button
+                    onClick={() => setThreadsPageNum(p => Math.max(0, p - 1))}
+                    disabled={threadsPageNum === 0}
+                    className="btn btn-secondary"
+                  >
+                    이전
+                  </button>
+                  <span style={{ 
+                    padding: '0 var(--spacing-md)',
+                    color: 'var(--color-text-secondary)',
+                    fontSize: '0.9375rem'
+                  }}>
+                    {threadsPageNum + 1} / {threadsPage.totalPages}
+                  </span>
+                  <button
+                    onClick={() => setThreadsPageNum(p => Math.min(threadsPage.totalPages - 1, p + 1))}
+                    disabled={threadsPageNum >= threadsPage.totalPages - 1}
+                    className="btn btn-secondary"
+                  >
+                    다음
+                  </button>
+                </div>
+              )}
+            </>
+          )}
         </div>
       )}
 

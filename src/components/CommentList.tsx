@@ -79,9 +79,9 @@ export default function CommentList({ comments, onReply }: CommentListProps) {
             <span style={{ 
               fontWeight: '600',
               fontSize: '0.9375rem',
-              color: 'var(--color-text)'
+              color: comment.isAuthor ? 'var(--color-primary)' : 'var(--color-text)'
             }}>
-              {comment.authorId ? comment.authorId.substring(0, 8) : '익명'}
+              {comment.isAuthor ? '글쓴 익명' : '익명'}
             </span>
             <span style={{ 
               color: 'var(--color-text-secondary)', 

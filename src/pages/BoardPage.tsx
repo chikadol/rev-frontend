@@ -10,13 +10,21 @@ export default function BoardPage() {
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(0);
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
+  const [searchKeyword, setSearchKeyword] = useState('');
+  const [searchInput, setSearchInput] = useState('');
 
   useEffect(() => {
     if (!boardId) return;
     
     Promise.all([
       apiClient.getBoard(boardId),
-      apiClient.getThreads(boardId, page, 20, selectedTags.length > 0 ? selectedTags : undefined)
+      apiClient.getThreads(
+        boardId, 
+        page, 
+        20, 
+        selectedTags.length > 0 ? selectedTags : undefined,
+        searchKeyword || undefined
+      )
     ])
       .then(([boardData, threadsData]) => {
         setBoard(boardData);
@@ -24,7 +32,19 @@ export default function BoardPage() {
       })
       .catch(console.error)
       .finally(() => setLoading(false));
-  }, [boardId, page, selectedTags]);
+  }, [boardId, page, selectedTags, searchKeyword]);
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    setSearchKeyword(searchInput.trim());
+    setPage(0); // 검색 시 첫 페이지로 리셋
+  };
+
+  const handleClearSearch = () => {
+    setSearchInput('');
+    setSearchKeyword('');
+    setPage(0);
+  };
 
   if (loading) {
     return (
@@ -102,9 +122,55 @@ export default function BoardPage() {
       <div style={{ 
         marginBottom: 'var(--spacing-xl)', 
         display: 'flex', 
-        justifyContent: 'flex-end', 
-        alignItems: 'center' 
+        justifyContent: 'space-between', 
+        alignItems: 'center',
+        gap: 'var(--spacing-md)',
+        flexWrap: 'wrap'
       }}>
+        <form 
+          onSubmit={handleSearch}
+          style={{
+            flex: 1,
+            minWidth: '250px',
+            maxWidth: '500px',
+            display: 'flex',
+            gap: 'var(--spacing-sm)'
+          }}
+        >
+          <input
+            type="text"
+            value={searchInput}
+            onChange={(e) => setSearchInput(e.target.value)}
+            placeholder="제목, 내용, 댓글에서 검색..."
+            className="input"
+            style={{
+              flex: 1,
+              fontSize: '0.9375rem'
+            }}
+          />
+          <button
+            type="submit"
+            className="btn btn-primary"
+            style={{
+              whiteSpace: 'nowrap',
+              fontWeight: '600'
+            }}
+          >
+            검색
+          </button>
+          {searchKeyword && (
+            <button
+              type="button"
+              onClick={handleClearSearch}
+              className="btn btn-secondary"
+              style={{
+                whiteSpace: 'nowrap'
+              }}
+            >
+              초기화
+            </button>
+          )}
+        </form>
         <Link
           to={`/boards/${boardId}/threads/new`}
           className="btn btn-primary"
@@ -112,13 +178,69 @@ export default function BoardPage() {
             display: 'flex',
             alignItems: 'center',
             gap: '0.5rem',
-            fontWeight: '600'
+            fontWeight: '600',
+            whiteSpace: 'nowrap'
           }}
         >
           <span>+</span>
           <span>새 글 작성</span>
         </Link>
       </div>
+
+      {searchKeyword && (
+        <div style={{
+          marginBottom: 'var(--spacing-lg)',
+          padding: 'var(--spacing-md)',
+          background: 'var(--color-bg-secondary)',
+          borderRadius: 'var(--radius-md)',
+          border: '1px solid var(--color-border)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          gap: 'var(--spacing-md)'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--spacing-sm)' }}>
+            <span style={{ color: 'var(--color-text-secondary)', fontSize: '0.875rem' }}>
+              검색어:
+            </span>
+            <span style={{ 
+              color: 'var(--color-primary)', 
+              fontWeight: '600',
+              fontSize: '0.9375rem'
+            }}>
+              "{searchKeyword}"
+            </span>
+            <span style={{ 
+              color: 'var(--color-text-secondary)', 
+              fontSize: '0.875rem',
+              marginLeft: 'var(--spacing-sm)'
+            }}>
+              ({threads?.totalElements || 0}개 결과)
+            </span>
+          </div>
+          <button
+            onClick={handleClearSearch}
+            style={{
+              padding: '0.25rem 0.75rem',
+              background: 'transparent',
+              border: '1px solid var(--color-border)',
+              borderRadius: 'var(--radius)',
+              cursor: 'pointer',
+              fontSize: '0.8125rem',
+              color: 'var(--color-text-secondary)',
+              fontWeight: '500'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = 'var(--color-bg-tertiary)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = 'transparent';
+            }}
+          >
+            ✕
+          </button>
+        </div>
+      )}
 
       <div className="card" style={{ 
         padding: 0, 
