@@ -19,6 +19,7 @@ import Landing from './pages/Landing';
 import IdolList from './pages/IdolList';
 import IdolDetail from './pages/IdolDetail';
 import CreatePerformancePage from './pages/CreatePerformancePage';
+import RequestBoardPage from './pages/RequestBoardPage';
 import './App.css';
 
 function PrivateRoute({ children }: { children: React.ReactNode }) {
@@ -38,6 +39,11 @@ function App() {
                     <Route path="/boards/new" element={
                         <PrivateRoute>
                             <CreateBoardPage />
+                        </PrivateRoute>
+                    } />
+                    <Route path="/boards/request" element={
+                        <PrivateRoute>
+                            <RequestBoardPage />
                         </PrivateRoute>
                     } />
                     <Route path="/boards/:boardId" element={<BoardPage />} />

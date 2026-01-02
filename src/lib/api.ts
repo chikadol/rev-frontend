@@ -143,6 +143,46 @@ class ApiClient {
     });
   }
 
+  // Board Requests
+  async createBoardRequest(data: { 
+    name: string; 
+    slug: string; 
+    description?: string; 
+    reason?: string 
+  }): Promise<BoardRequest> {
+    return this.request<BoardRequest>('/api/board-requests', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async getMyBoardRequests(page: number = 0, size: number = 20): Promise<PageResponse<BoardRequest>> {
+    const params = new URLSearchParams({
+      page: page.toString(),
+      size: size.toString(),
+    });
+    return this.request<PageResponse<BoardRequest>>(`/api/board-requests/my?${params.toString()}`);
+  }
+
+  async getPendingBoardRequests(page: number = 0, size: number = 20): Promise<PageResponse<BoardRequest>> {
+    const params = new URLSearchParams({
+      page: page.toString(),
+      size: size.toString(),
+    });
+    return this.request<PageResponse<BoardRequest>>(`/api/board-requests/pending?${params.toString()}`);
+  }
+
+  async processBoardRequest(
+    requestId: string, 
+    approved: boolean, 
+    comment?: string
+  ): Promise<BoardRequest> {
+    return this.request<BoardRequest>(`/api/board-requests/${requestId}/process`, {
+      method: 'POST',
+      body: JSON.stringify({ approved, comment }),
+    });
+  }
+
   // Threads
   async getThreads(
     boardId: string,

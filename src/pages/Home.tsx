@@ -2,14 +2,17 @@ import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { apiClient } from '../lib/api';
 import type { Board } from '../types';
+import { isAdmin } from '../utils/auth';
 
 export default function Home() {
     const navigate = useNavigate();
     const [boards, setBoards] = useState<Board[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [userIsAdmin, setUserIsAdmin] = useState(false);
 
     useEffect(() => {
+        setUserIsAdmin(isAdmin());
         apiClient.getBoards()
             .then(setBoards)
             .catch((err) => {
@@ -74,13 +77,23 @@ export default function Home() {
                 marginBottom: 'var(--spacing-xl)' 
             }}>
                 <h1 style={{ margin: 0, fontSize: '2rem', fontWeight: '700', letterSpacing: '-0.02em' }}>게시판 목록</h1>
-                <button
-                    onClick={() => navigate('/boards/new')}
-                    className="btn btn-primary"
-                    style={{ fontSize: '0.9375rem' }}
-                >
-                    + 게시판 생성
-                </button>
+                {userIsAdmin ? (
+                    <button
+                        onClick={() => navigate('/boards/new')}
+                        className="btn btn-primary"
+                        style={{ fontSize: '0.9375rem' }}
+                    >
+                        + 게시판 생성
+                    </button>
+                ) : (
+                    <button
+                        onClick={() => navigate('/boards/request')}
+                        className="btn btn-primary"
+                        style={{ fontSize: '0.9375rem' }}
+                    >
+                        + 게시판 생성 요청
+                    </button>
+                )}
             </div>
             
             {boards.length === 0 ? (
@@ -95,12 +108,21 @@ export default function Home() {
                     <p style={{ fontSize: '0.9375rem', marginBottom: 'var(--spacing-lg)', color: 'var(--color-text-secondary)' }}>
                         첫 번째 게시판을 만들어보세요!
                     </p>
-                    <button
-                        onClick={() => navigate('/boards/new')}
-                        className="btn btn-primary"
-                    >
-                        게시판 생성하기
-                    </button>
+                    {userIsAdmin ? (
+                        <button
+                            onClick={() => navigate('/boards/new')}
+                            className="btn btn-primary"
+                        >
+                            게시판 생성하기
+                        </button>
+                    ) : (
+                        <button
+                            onClick={() => navigate('/boards/request')}
+                            className="btn btn-primary"
+                        >
+                            게시판 생성 요청하기
+                        </button>
+                    )}
                 </div>
             ) : (
                 <div style={{ 

@@ -6,6 +6,21 @@ export interface Board {
   description?: string;
 }
 
+export interface BoardRequest {
+  id: string;
+  name: string;
+  slug: string;
+  description?: string;
+  reason?: string;
+  requesterId: string;
+  requesterUsername?: string;
+  status: 'PENDING' | 'APPROVED' | 'REJECTED';
+  createdAt?: string;
+  processedAt?: string;
+  processedById?: string;
+  processedByUsername?: string;
+}
+
 export interface Thread {
   id: string;
   title: string;
