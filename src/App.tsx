@@ -20,6 +20,7 @@ import IdolList from './pages/IdolList';
 import IdolDetail from './pages/IdolDetail';
 import CreatePerformancePage from './pages/CreatePerformancePage';
 import RequestBoardPage from './pages/RequestBoardPage';
+import AdminUsersPage from './pages/AdminUsersPage';
 import './App.css';
 
 function PrivateRoute({ children }: { children: React.ReactNode }) {
@@ -83,6 +84,11 @@ function App() {
                     <Route path="/payment/callback" element={<PaymentCallbackPage />} />
                     <Route path="/idols" element={<IdolList />} />
                     <Route path="/idols/:idolId" element={<IdolDetail />} />
+                    <Route path="/admin/users" element={
+                        <PrivateRoute>
+                            <AdminUsersPage />
+                        </PrivateRoute>
+                    } />
                     <Route path="/auth/callback" element={<OAuthCallback />} />
                 </Routes>
             </Layout>

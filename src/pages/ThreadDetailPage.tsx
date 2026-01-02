@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { apiClient } from '../lib/api';
 import type { ThreadDetail, Comment } from '../types';
 import CommentList from '../components/CommentList';
+import { isAdmin } from '../utils/auth';
 
 export default function ThreadDetailPage() {
   const { threadId } = useParams<{ threadId: string }>();
@@ -10,9 +11,12 @@ export default function ThreadDetailPage() {
   const [comments, setComments] = useState<Comment[]>([]);
   const [loading, setLoading] = useState(true);
   const [newComment, setNewComment] = useState('');
+  const [userIsAdmin, setUserIsAdmin] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (!threadId) return;
+    setUserIsAdmin(isAdmin());
     
     Promise.all([
       apiClient.getThread(threadId),
@@ -97,6 +101,19 @@ export default function ThreadDetailPage() {
         ...threadDetail,
         commentCount: threadDetail.commentCount + 1
       });
+    }
+  };
+
+  const handleDeleteThread = async () => {
+    if (!threadId || !window.confirm('정말 이 게시글을 삭제하시겠습니까?')) return;
+    
+    try {
+      await apiClient.deleteThread(threadId);
+      alert('게시글이 삭제되었습니다.');
+      navigate(`/boards/${thread?.boardId}`);
+    } catch (error: any) {
+      console.error('게시글 삭제 실패:', error);
+      alert(error.message || '게시글 삭제에 실패했습니다.');
     }
   };
 
@@ -265,6 +282,21 @@ export default function ThreadDetailPage() {
           }}>
             💬 댓글 {threadDetail.commentCount}개
           </span>
+          
+          {userIsAdmin && (
+            <button
+              onClick={handleDeleteThread}
+              className="btn btn-secondary"
+              style={{
+                background: 'var(--color-error)',
+                borderColor: 'var(--color-error)',
+                color: 'white',
+                marginLeft: 'auto'
+              }}
+            >
+              🗑️ 삭제
+            </button>
+          )}
         </div>
       </article>
 
@@ -298,7 +330,19 @@ export default function ThreadDetailPage() {
           </button>
         </form>
 
-        <CommentList comments={comments} onReply={handleReply} />
+        <CommentList 
+          comments={comments} 
+          onReply={handleReply}
+          onDelete={(commentId) => {
+            setComments(comments.filter(c => c.id !== commentId));
+            if (threadDetail) {
+              setThreadDetail({
+                ...threadDetail,
+                commentCount: Math.max(0, threadDetail.commentCount - 1)
+              });
+            }
+          }}
+        />
       </section>
     </div>
   );

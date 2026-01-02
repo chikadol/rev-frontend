@@ -1,6 +1,7 @@
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { apiClient } from '../lib/api';
+import { isAdmin } from '../utils/auth';
 import '../index.css';
 
 interface LayoutProps {
@@ -12,11 +13,13 @@ export default function Layout({ children }: LayoutProps) {
   const location = useLocation();
   const [unreadCount, setUnreadCount] = useState(0);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [userIsAdmin, setUserIsAdmin] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
     const token = localStorage.getItem('accessToken');
     setIsAuthenticated(!!token);
+    setUserIsAdmin(isAdmin());
     
     if (token) {
       apiClient.getUnreadNotificationCount()
@@ -52,7 +55,12 @@ export default function Layout({ children }: LayoutProps) {
     { to: '/my-tickets', label: '내 티켓', icon: '🎟️', requireAuth: true },
     { to: '/notifications', label: '알림', icon: '🔔', requireAuth: true, badge: unreadCount },
     { to: '/me', label: '내정보', icon: '👤', requireAuth: true },
-  ].filter(link => !link.requireAuth || isAuthenticated);
+    { to: '/admin/users', label: '사용자 관리', icon: '👥', requireAuth: true, requireAdmin: true },
+  ].filter(link => {
+    if (link.requireAuth && !isAuthenticated) return false;
+    if ((link as any).requireAdmin && !userIsAdmin) return false;
+    return true;
+  });
 
   return (
     <div style={{ 

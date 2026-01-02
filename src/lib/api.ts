@@ -143,6 +143,12 @@ class ApiClient {
     });
   }
 
+  async deleteBoard(boardId: string): Promise<{ message: string }> {
+    return this.request<{ message: string }>(`/api/boards/${boardId}`, {
+      method: 'DELETE',
+    });
+  }
+
   // Board Requests
   async createBoardRequest(data: { 
     name: string; 
@@ -238,6 +244,12 @@ class ApiClient {
     });
   }
 
+  async deleteThread(threadId: string): Promise<{ message: string }> {
+    return this.request<{ message: string }>(`/api/threads/${threadId}`, {
+      method: 'DELETE',
+    });
+  }
+
   // Comments
   async getComments(threadId: string): Promise<Comment[]> {
     return this.request<Comment[]>(`/api/comments/threads/${threadId}`);
@@ -251,6 +263,12 @@ class ApiClient {
     return this.request<Comment>('/api/comments', {
       method: 'POST',
       body: JSON.stringify(data),
+    });
+  }
+
+  async deleteComment(commentId: string): Promise<{ message: string }> {
+    return this.request<{ message: string }>(`/api/comments/${commentId}`, {
+      method: 'DELETE',
     });
   }
 
@@ -464,6 +482,40 @@ class ApiClient {
       body: JSON.stringify(data),
     });
   }
+
+  // Admin - User Management
+  async getUsers(page: number = 0, size: number = 20): Promise<PageResponse<UserManagement>> {
+    const params = new URLSearchParams({
+      page: page.toString(),
+      size: size.toString(),
+    });
+    return this.request<PageResponse<UserManagement>>(`/api/admin/users?${params.toString()}`);
+  }
+
+  async getUser(userId: string): Promise<UserManagement> {
+    return this.request<UserManagement>(`/api/admin/users/${userId}`);
+  }
+
+  async deleteUser(userId: string): Promise<void> {
+    return this.request<void>(`/api/admin/users/${userId}`, {
+      method: 'DELETE',
+    });
+  }
+
+  async updateUserRole(userId: string, role: 'USER' | 'IDOL' | 'ADMIN'): Promise<UserManagement> {
+    return this.request<UserManagement>(`/api/admin/users/${userId}/role`, {
+      method: 'PATCH',
+      body: JSON.stringify({ role }),
+    });
+  }
+}
+
+export interface UserManagement {
+  id: string;
+  email: string;
+  username: string;
+  role: 'USER' | 'IDOL' | 'ADMIN';
+  createdAt?: string;
 }
 
 export const apiClient = new ApiClient(API_BASE_URL);

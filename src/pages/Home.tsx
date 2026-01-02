@@ -10,6 +10,7 @@ export default function Home() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [userIsAdmin, setUserIsAdmin] = useState(false);
+    const [deletingBoardId, setDeletingBoardId] = useState<string | null>(null);
 
     useEffect(() => {
         setUserIsAdmin(isAdmin());
@@ -21,6 +22,24 @@ export default function Home() {
             })
             .finally(() => setLoading(false));
     }, []);
+
+    const handleDeleteBoard = async (boardId: string, e: React.MouseEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+        if (!window.confirm('정말 이 게시판을 삭제하시겠습니까? 게시판 내 모든 게시글과 댓글이 함께 삭제됩니다.')) return;
+        
+        setDeletingBoardId(boardId);
+        try {
+            await apiClient.deleteBoard(boardId);
+            setBoards(boards.filter(b => b.id !== boardId));
+            alert('게시판이 삭제되었습니다.');
+        } catch (error: any) {
+            console.error('게시판 삭제 실패:', error);
+            alert(error.message || '게시판 삭제에 실패했습니다.');
+        } finally {
+            setDeletingBoardId(null);
+        }
+    };
 
     if (loading) {
         return (
@@ -131,36 +150,64 @@ export default function Home() {
                     gap: 'var(--spacing-lg)' 
                 }}>
                     {boards.map(board => (
-                        <Link
+                        <div
                             key={board.id}
-                            to={`/boards/${board.id}`}
                             className="card card-hover"
                             style={{
-                                textDecoration: 'none',
-                                color: 'inherit',
                                 padding: 'var(--spacing-xl)',
-                                display: 'block'
+                                position: 'relative'
                             }}
                         >
-                            <h2 style={{ 
-                                margin: '0 0 var(--spacing-md) 0', 
-                                fontSize: '1.25rem',
-                                fontWeight: '600',
-                                color: 'var(--color-text)'
-                            }}>
-                                {board.name}
-                            </h2>
-                            {board.description && (
-                                <p style={{ 
-                                    margin: 0, 
-                                    color: 'var(--color-text-secondary)', 
-                                    fontSize: '0.9375rem',
-                                    lineHeight: '1.5'
+                            <Link
+                                to={`/boards/${board.id}`}
+                                style={{
+                                    textDecoration: 'none',
+                                    color: 'inherit',
+                                    display: 'block'
+                                }}
+                            >
+                                <h2 style={{ 
+                                    margin: '0 0 var(--spacing-md) 0', 
+                                    fontSize: '1.25rem',
+                                    fontWeight: '600',
+                                    color: 'var(--color-text)'
                                 }}>
-                                    {board.description}
-                                </p>
+                                    {board.name}
+                                </h2>
+                                {board.description && (
+                                    <p style={{ 
+                                        margin: 0, 
+                                        color: 'var(--color-text-secondary)', 
+                                        fontSize: '0.9375rem',
+                                        lineHeight: '1.5'
+                                    }}>
+                                        {board.description}
+                                    </p>
+                                )}
+                            </Link>
+                            {userIsAdmin && (
+                                <button
+                                    onClick={(e) => handleDeleteBoard(board.id, e)}
+                                    disabled={deletingBoardId === board.id}
+                                    style={{
+                                        position: 'absolute',
+                                        top: 'var(--spacing-md)',
+                                        right: 'var(--spacing-md)',
+                                        padding: '0.375rem 0.75rem',
+                                        background: 'var(--color-error)',
+                                        border: 'none',
+                                        borderRadius: 'var(--radius)',
+                                        color: 'white',
+                                        fontSize: '0.8125rem',
+                                        fontWeight: '500',
+                                        cursor: deletingBoardId === board.id ? 'not-allowed' : 'pointer',
+                                        opacity: deletingBoardId === board.id ? 0.6 : 1
+                                    }}
+                                >
+                                    {deletingBoardId === board.id ? '삭제 중...' : '🗑️'}
+                                </button>
                             )}
-                        </Link>
+                        </div>
                     ))}
                 </div>
             )}

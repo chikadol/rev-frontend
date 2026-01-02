@@ -1,15 +1,19 @@
 import { useState } from 'react';
 import type { Comment } from '../types';
+import { apiClient } from '../lib/api';
+import { isAdmin } from '../utils/auth';
 
 interface CommentListProps {
   comments: Comment[];
   onReply?: (parentId: string, content: string) => Promise<void>;
+  onDelete?: (commentId: string) => void;
 }
 
-export default function CommentList({ comments, onReply }: CommentListProps) {
+export default function CommentList({ comments, onReply, onDelete }: CommentListProps) {
   const [replyingTo, setReplyingTo] = useState<string | null>(null);
   const [replyContent, setReplyContent] = useState<Record<string, string>>({});
   const [submittingReply, setSubmittingReply] = useState<string | null>(null);
+  const [userIsAdmin] = useState(() => isAdmin());
 
   if (comments.length === 0) {
     return (
@@ -55,6 +59,21 @@ export default function CommentList({ comments, onReply }: CommentListProps) {
     }
   };
 
+  const handleDeleteComment = async (commentId: string) => {
+    if (!window.confirm('정말 이 댓글을 삭제하시겠습니까?')) return;
+    
+    try {
+      await apiClient.deleteComment(commentId);
+      if (onDelete) {
+        onDelete(commentId);
+      }
+      alert('댓글이 삭제되었습니다.');
+    } catch (error: any) {
+      console.error('댓글 삭제 실패:', error);
+      alert(error.message || '댓글 삭제에 실패했습니다.');
+    }
+  };
+
   const renderComment = (comment: Comment, isReply: boolean = false) => {
     const replies = repliesByParent[comment.id] || [];
     
@@ -83,17 +102,44 @@ export default function CommentList({ comments, onReply }: CommentListProps) {
             }}>
               {comment.isAuthor ? '글쓴 익명' : '익명'}
             </span>
-            <span style={{ 
-              color: 'var(--color-text-secondary)', 
-              fontSize: '0.8125rem' 
-            }}>
-              {comment.createdAt ? new Date(comment.createdAt).toLocaleString('ko-KR', {
-                month: 'short',
-                day: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit'
-              }) : '-'}
-            </span>
+            <div style={{ display: 'flex', gap: 'var(--spacing-sm)', alignItems: 'center' }}>
+              <span style={{ 
+                color: 'var(--color-text-secondary)', 
+                fontSize: '0.8125rem' 
+              }}>
+                {comment.createdAt ? new Date(comment.createdAt).toLocaleString('ko-KR', {
+                  month: 'short',
+                  day: 'numeric',
+                  hour: '2-digit',
+                  minute: '2-digit'
+                }) : '-'}
+              </span>
+              {userIsAdmin && (
+                <button
+                  onClick={() => handleDeleteComment(comment.id)}
+                  style={{
+                    padding: '0.25rem 0.5rem',
+                    background: 'transparent',
+                    border: '1px solid var(--color-error)',
+                    borderRadius: 'var(--radius-sm)',
+                    cursor: 'pointer',
+                    fontSize: '0.75rem',
+                    color: 'var(--color-error)',
+                    fontWeight: '500'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.background = 'var(--color-error)';
+                    e.currentTarget.style.color = 'white';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background = 'transparent';
+                    e.currentTarget.style.color = 'var(--color-error)';
+                  }}
+                >
+                  삭제
+                </button>
+              )}
+            </div>
           </div>
           <div style={{ 
             color: 'var(--color-text)', 
