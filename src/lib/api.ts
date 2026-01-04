@@ -43,9 +43,51 @@ class ApiClient {
     this.baseUrl = baseUrl;
   }
 
+  private async refreshAccessToken(): Promise<string | null> {
+    try {
+      const refreshToken = localStorage.getItem('refreshToken');
+      if (!refreshToken) {
+        return null;
+      }
+
+      const response = await fetch(`${this.baseUrl}/auth/refresh`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ refreshToken }),
+      });
+
+      const responseData = await response.json();
+
+      // 새로운 통일된 응답 형식 처리
+      let tokenData;
+      if (responseData.success !== undefined) {
+        if (!responseData.success) {
+          return null;
+        }
+        tokenData = responseData.data || responseData;
+      } else {
+        tokenData = responseData;
+      }
+
+      if (tokenData?.accessToken && tokenData?.refreshToken) {
+        localStorage.setItem('accessToken', tokenData.accessToken);
+        localStorage.setItem('refreshToken', tokenData.refreshToken);
+        return tokenData.accessToken;
+      }
+
+      return null;
+    } catch (error) {
+      console.error('토큰 갱신 실패:', error);
+      return null;
+    }
+  }
+
   private async request<T>(
     endpoint: string,
-    options: RequestInit = {}
+    options: RequestInit = {},
+    retryCount: number = 0
   ): Promise<T> {
     const token = localStorage.getItem('accessToken');
     const headers: Record<string, string> = {
@@ -66,28 +108,71 @@ class ApiClient {
         headers,
       });
 
-      if (!response.ok) {
-        const errorText = await response.text();
-        let errorMessage = errorText || `HTTP error! status: ${response.status}`;
-        
-        // JSON 형식의 에러 응답 파싱 시도
-        try {
-          const errorJson = JSON.parse(errorText);
-          console.error('API 에러 응답:', errorJson);
-          if (errorJson.message) {
-            errorMessage = errorJson.message;
-          } else if (errorJson.error) {
-            errorMessage = errorJson.error;
+      // 401 에러 발생 시 토큰 갱신 시도
+      if (response.status === 401 && retryCount === 0) {
+        const newToken = await this.refreshAccessToken();
+        if (newToken) {
+          // 새 토큰으로 재시도
+          headers['Authorization'] = `Bearer ${newToken}`;
+          const retryResponse = await fetch(`${this.baseUrl}${endpoint}`, {
+            ...options,
+            headers,
+          });
+          
+          const retryResponseData = await retryResponse.json();
+          
+          // 새로운 통일된 응답 형식 처리
+          if (retryResponseData.success !== undefined) {
+            if (!retryResponseData.success) {
+              const errorMessage = retryResponseData.message || 
+                                  retryResponseData.error?.message || 
+                                  '요청 처리 중 오류가 발생했습니다.';
+              throw new Error(errorMessage);
+            }
+            return retryResponseData.data !== undefined ? retryResponseData.data : retryResponseData;
           }
-        } catch {
-          // JSON 파싱 실패 시 원본 텍스트 사용
-          console.error('API 에러 응답 (텍스트):', errorText);
+
+          if (!retryResponse.ok) {
+            const errorMessage = retryResponseData.message || 
+                              retryResponseData.error?.message || 
+                              retryResponseData.error ||
+                              `HTTP error! status: ${retryResponse.status}`;
+            throw new Error(errorMessage);
+          }
+
+          return retryResponseData;
+        } else {
+          // 토큰 갱신 실패 - 로그아웃 처리
+          localStorage.removeItem('accessToken');
+          localStorage.removeItem('refreshToken');
+          throw new Error('세션이 만료되었습니다. 다시 로그인해주세요.');
         }
-        
+      }
+
+      const responseData = await response.json();
+
+      // 새로운 통일된 응답 형식 처리
+      if (responseData.success !== undefined) {
+        if (!responseData.success) {
+          const errorMessage = responseData.message || 
+                              responseData.error?.message || 
+                              '요청 처리 중 오류가 발생했습니다.';
+          throw new Error(errorMessage);
+        }
+        // 성공 응답이면 data 필드 반환 (없으면 전체 응답 반환)
+        return responseData.data !== undefined ? responseData.data : responseData;
+      }
+
+      // 기존 형식 호환성 (success 필드가 없으면 기존 방식)
+      if (!response.ok) {
+        const errorMessage = responseData.message || 
+                            responseData.error?.message || 
+                            responseData.error ||
+                            `HTTP error! status: ${response.status}`;
         throw new Error(errorMessage);
       }
 
-      return response.json();
+      return responseData;
     } catch (error: any) {
       // 네트워크 에러 처리 (Failed to fetch 등)
       if (error.message === 'Failed to fetch' || error.name === 'TypeError') {

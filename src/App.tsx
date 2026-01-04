@@ -23,9 +23,39 @@ import RequestBoardPage from './pages/RequestBoardPage';
 import AdminUsersPage from './pages/AdminUsersPage';
 import './App.css';
 
+import { useAuth } from './contexts/AuthContext';
+import LoadingSpinner from './components/LoadingSpinner';
+
 function PrivateRoute({ children }: { children: React.ReactNode }) {
-  const token = localStorage.getItem('accessToken');
-  return token ? <>{children}</> : <Navigate to="/login" />;
+  const { isAuthenticated, loading } = useAuth();
+  
+  if (loading) {
+    return <LoadingSpinner fullScreen message="로딩 중..." />;
+  }
+  
+  return isAuthenticated ? <>{children}</> : <Navigate to="/login" />;
+}
+
+function AdminRoute({ children }: { children: React.ReactNode }) {
+  const { isAuthenticated, user, loading } = useAuth();
+  
+  if (loading) {
+    return <LoadingSpinner fullScreen message="로딩 중..." />;
+  }
+  
+  if (!isAuthenticated) {
+    return <Navigate to="/login" />;
+  }
+  
+  const isAdmin = user?.roles?.some((role: string) => 
+    role === 'ADMIN' || role === 'ROLE_ADMIN' || role.includes('ADMIN')
+  ) || false;
+  
+  if (!isAdmin) {
+    return <Navigate to="/" />;
+  }
+  
+  return <>{children}</>;
 }
 
 function App() {
@@ -85,9 +115,9 @@ function App() {
                     <Route path="/idols" element={<IdolList />} />
                     <Route path="/idols/:idolId" element={<IdolDetail />} />
                     <Route path="/admin/users" element={
-                        <PrivateRoute>
+                        <AdminRoute>
                             <AdminUsersPage />
-                        </PrivateRoute>
+                        </AdminRoute>
                     } />
                     <Route path="/auth/callback" element={<OAuthCallback />} />
                 </Routes>

@@ -1,7 +1,7 @@
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { apiClient } from '../lib/api';
-import { isAdmin } from '../utils/auth';
+import { useAuth } from '../contexts/AuthContext';
 import '../index.css';
 
 interface LayoutProps {
@@ -11,19 +11,29 @@ interface LayoutProps {
 export default function Layout({ children }: LayoutProps) {
   const navigate = useNavigate();
   const location = useLocation();
+  const { isAuthenticated, user, logout, loading: authLoading } = useAuth();
   const [unreadCount, setUnreadCount] = useState(0);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [userIsAdmin, setUserIsAdmin] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
+  const userIsAdmin = user?.roles?.some((role: string) => 
+    role === 'ADMIN' || role === 'ROLE_ADMIN' || role.includes('ADMIN')
+  ) || false;
+
+  // 디버깅용
   useEffect(() => {
-    const token = localStorage.getItem('accessToken');
-    setIsAuthenticated(!!token);
-    setUserIsAdmin(isAdmin());
-    
-    if (token) {
+    console.log('Layout - isAuthenticated:', isAuthenticated);
+    console.log('Layout - user:', user);
+    console.log('Layout - userIsAdmin:', userIsAdmin);
+    console.log('Layout - authLoading:', authLoading);
+  }, [isAuthenticated, user, userIsAdmin, authLoading]);
+
+  useEffect(() => {
+    if (isAuthenticated) {
       apiClient.getUnreadNotificationCount()
-        .then(res => setUnreadCount(res.unreadCount))
+        .then(res => {
+          const count = (res as any).data?.unreadCount || res.unreadCount || 0;
+          setUnreadCount(count);
+        })
         .catch((err) => {
           console.warn('알림 카운트 로드 실패 (무시됨):', err);
           setUnreadCount(0);
@@ -31,7 +41,7 @@ export default function Layout({ children }: LayoutProps) {
     } else {
       setUnreadCount(0);
     }
-  }, [location.pathname]);
+  }, [location.pathname, isAuthenticated]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -42,25 +52,27 @@ export default function Layout({ children }: LayoutProps) {
   }, []);
 
   const handleLogout = () => {
-    localStorage.removeItem('accessToken');
-    localStorage.removeItem('refreshToken');
-    setIsAuthenticated(false);
+    logout();
     navigate('/login');
   };
 
-  const navLinks = [
-    { to: '/performances', label: '공연', icon: '🎫' },
-    { to: '/boards', label: '게시판', icon: '💬', requireAuth: true },
-    { to: '/idols', label: '아이돌', icon: '🌟' },
-    { to: '/my-tickets', label: '내 티켓', icon: '🎟️', requireAuth: true },
-    { to: '/notifications', label: '알림', icon: '🔔', requireAuth: true, badge: unreadCount },
-    { to: '/me', label: '내정보', icon: '👤', requireAuth: true },
-    { to: '/admin/users', label: '사용자 관리', icon: '👥', requireAuth: true, requireAdmin: true },
-  ].filter(link => {
-    if (link.requireAuth && !isAuthenticated) return false;
-    if ((link as any).requireAdmin && !userIsAdmin) return false;
-    return true;
-  });
+  const navLinks = useMemo(() => {
+    const allLinks = [
+      { to: '/performances', label: '공연', icon: '🎫' },
+      { to: '/boards', label: '게시판', icon: '💬', requireAuth: true },
+      { to: '/idols', label: '아이돌', icon: '🌟' },
+      { to: '/my-tickets', label: '내 티켓', icon: '🎟️', requireAuth: true },
+      { to: '/notifications', label: '알림', icon: '🔔', requireAuth: true, badge: unreadCount },
+      { to: '/me', label: '내정보', icon: '👤', requireAuth: true },
+      { to: '/admin/users', label: '사용자 관리', icon: '👥', requireAuth: true, requireAdmin: true },
+    ];
+    
+    return allLinks.filter(link => {
+      if (link.requireAuth && !isAuthenticated) return false;
+      if ((link as any).requireAdmin && !userIsAdmin) return false;
+      return true;
+    });
+  }, [isAuthenticated, userIsAdmin, unreadCount]);
 
   return (
     <div style={{ 

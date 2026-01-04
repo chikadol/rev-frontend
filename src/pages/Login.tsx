@@ -1,9 +1,12 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { apiClient } from "../lib/api";
+import { useAuth } from "../contexts/AuthContext";
+import ErrorMessage from "../components/ErrorMessage";
+import LoadingSpinner from "../components/LoadingSpinner";
 
 export default function Login() {
     const navigate = useNavigate();
+    const { login, loading: authLoading } = useAuth();
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [error, setError] = useState("");
@@ -15,24 +18,11 @@ export default function Login() {
         setLoading(true);
 
         try {
-            const data = await apiClient.login({ email, password });
-            
-            localStorage.setItem("accessToken", data.accessToken);
-            localStorage.setItem("refreshToken", data.refreshToken);
-            
-            console.log("로그인 성공:", data);
+            await login(email, password);
             navigate("/");
         } catch (err: any) {
             console.error("로그인 실패:", err);
-            let errorMessage = err.message || "로그인에 실패했습니다.";
-            
-            if (errorMessage.includes("Invalid credentials")) {
-                errorMessage = "이메일 또는 비밀번호가 올바르지 않습니다.";
-            } else if (errorMessage.includes("Invalid")) {
-                errorMessage = "입력 정보가 올바르지 않습니다.";
-            }
-            
-            setError(errorMessage);
+            setError(err.message || "로그인에 실패했습니다.");
         } finally {
             setLoading(false);
         }
@@ -193,22 +183,10 @@ export default function Login() {
                 </div>
                 
                 {error && (
-                    <div style={{ 
-                        background: 'linear-gradient(135deg, rgba(239, 68, 68, 0.1) 0%, rgba(220, 38, 38, 0.1) 100%)',
-                        border: '1.5px solid var(--color-error-light)',
-                        color: 'var(--color-error)',
-                        padding: 'var(--spacing-md)',
-                        borderRadius: 'var(--radius-md)',
-                        marginBottom: 'var(--spacing-lg)',
-                        fontSize: '0.9375rem',
-                        fontWeight: '500',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '0.5rem'
-                    }}>
-                        <span>⚠️</span>
-                        <span>{error}</span>
-                    </div>
+                    <ErrorMessage 
+                        error={error} 
+                        onDismiss={() => setError("")}
+                    />
                 )}
 
                 <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-lg)' }}>
@@ -256,7 +234,7 @@ export default function Login() {
 
                     <button 
                         type="submit" 
-                        disabled={loading}
+                        disabled={loading || authLoading}
                         className="btn btn-primary"
                         style={{ 
                             width: '100%', 
@@ -266,7 +244,12 @@ export default function Login() {
                             fontWeight: '600'
                         }}
                     >
-                        {loading ? "로그인 중..." : "로그인"}
+                        {loading || authLoading ? (
+                            <>
+                                <LoadingSpinner size="small" />
+                                <span>로그인 중...</span>
+                            </>
+                        ) : "로그인"}
                     </button>
                 </form>
 
