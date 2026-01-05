@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import './LoadingSpinner.css';
 
 interface LoadingSpinnerProps {
@@ -6,7 +7,7 @@ interface LoadingSpinnerProps {
   message?: string;
 }
 
-export default function LoadingSpinner({
+const LoadingSpinner = memo(function LoadingSpinner({
   size = 'medium',
   fullScreen = false,
   message
@@ -27,5 +28,7 @@ export default function LoadingSpinner({
   }
 
   return spinner;
-}
+});
+
+export default LoadingSpinner;
 

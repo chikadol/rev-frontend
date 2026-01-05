@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, memo, useCallback } from 'react';
 import type { Comment } from '../types';
 import { apiClient } from '../lib/api';
 import { isAdmin } from '../utils/auth';
@@ -9,7 +9,7 @@ interface CommentListProps {
   onDelete?: (commentId: string) => void;
 }
 
-export default function CommentList({ comments, onReply, onDelete }: CommentListProps) {
+const CommentList = memo(function CommentList({ comments, onReply, onDelete }: CommentListProps) {
   const [replyingTo, setReplyingTo] = useState<string | null>(null);
   const [replyContent, setReplyContent] = useState<Record<string, string>>({});
   const [submittingReply, setSubmittingReply] = useState<string | null>(null);
@@ -38,28 +38,36 @@ export default function CommentList({ comments, onReply, onDelete }: CommentList
       return acc;
     }, {} as Record<string, Comment[]>);
 
-  const handleReply = async (parentId: string) => {
-    const content = replyContent[parentId]?.trim();
-    if (!content || !onReply) return;
+  const handleReply = useCallback(async (parentId: string) => {
+    // 함수 내부에서 최신 state를 참조하기 위해 함수형 업데이트 사용
+    setReplyContent(prev => {
+      const content = prev[parentId]?.trim();
+      if (!content || !onReply) return prev;
+      
+      setSubmittingReply(parentId);
+      // 비동기 작업은 즉시 실행
+      (async () => {
+        try {
+          await onReply(parentId, content);
+          setReplyContent(current => {
+            const next = { ...current };
+            delete next[parentId];
+            return next;
+          });
+          setReplyingTo(null);
+        } catch (error) {
+          console.error('대댓글 작성 실패:', error);
+          alert('대댓글 작성에 실패했습니다.');
+        } finally {
+          setSubmittingReply(null);
+        }
+      })();
+      
+      return prev;
+    });
+  }, [onReply]);
 
-    setSubmittingReply(parentId);
-    try {
-      await onReply(parentId, content);
-      setReplyContent(prev => {
-        const next = { ...prev };
-        delete next[parentId];
-        return next;
-      });
-      setReplyingTo(null);
-    } catch (error) {
-      console.error('대댓글 작성 실패:', error);
-      alert('대댓글 작성에 실패했습니다.');
-    } finally {
-      setSubmittingReply(null);
-    }
-  };
-
-  const handleDeleteComment = async (commentId: string) => {
+  const handleDeleteComment = useCallback(async (commentId: string) => {
     if (!window.confirm('정말 이 댓글을 삭제하시겠습니까?')) return;
     
     try {
@@ -72,7 +80,7 @@ export default function CommentList({ comments, onReply, onDelete }: CommentList
       console.error('댓글 삭제 실패:', error);
       alert(error.message || '댓글 삭제에 실패했습니다.');
     }
-  };
+  }, [onDelete]);
 
   const renderComment = (comment: Comment, isReply: boolean = false) => {
     const replies = repliesByParent[comment.id] || [];
@@ -226,4 +234,6 @@ export default function CommentList({ comments, onReply, onDelete }: CommentList
       {topLevelComments.map(comment => renderComment(comment))}
     </div>
   );
-}
+});
+
+export default CommentList;

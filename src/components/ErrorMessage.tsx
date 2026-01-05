@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import './ErrorMessage.css';
 
 interface ErrorMessageProps {
@@ -7,7 +8,7 @@ interface ErrorMessageProps {
   variant?: 'inline' | 'full';
 }
 
-export default function ErrorMessage({
+const ErrorMessage = memo(function ErrorMessage({
   error,
   onRetry,
   onDismiss,
@@ -77,5 +78,7 @@ export default function ErrorMessage({
       )}
     </div>
   );
-}
+});
+
+export default ErrorMessage;
 

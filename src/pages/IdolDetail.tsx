@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { apiClient } from '../lib/api';
 import type { Performance } from '../types';
+import OptimizedImage from '../components/OptimizedImage';
 
 type Idol = {
   id: string;
@@ -134,7 +135,7 @@ export default function IdolDetail() {
         }} />
         
         {idol.imageUrl ? (
-          <img 
+          <OptimizedImage 
             src={idol.imageUrl} 
             alt={idol.name} 
             style={{ 
