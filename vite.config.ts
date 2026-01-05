@@ -26,4 +26,24 @@ export default defineConfig({
       },
     },
   },
+  build: {
+    // 코드 스플리팅 최적화
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          // 벤더 라이브러리 분리
+          'react-vendor': ['react', 'react-dom', 'react-router-dom'],
+          // 페이지별 청크 (필요시 추가)
+        },
+      },
+    },
+    // 청크 크기 경고 임계값
+    chunkSizeWarningLimit: 1000,
+    // 소스맵 생성 (프로덕션에서는 false 권장)
+    sourcemap: false,
+  },
+  // 성능 최적화
+  optimizeDeps: {
+    include: ['react', 'react-dom', 'react-router-dom'],
+  },
 })

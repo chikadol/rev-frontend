@@ -149,7 +149,15 @@ class ApiClient {
         }
       }
 
-      const responseData = await response.json();
+      // 응답 본문 파싱 시도
+      let responseData: any;
+      try {
+        const text = await response.text();
+        responseData = text ? JSON.parse(text) : {};
+      } catch (parseError) {
+        // JSON 파싱 실패 시 빈 객체 사용
+        responseData = {};
+      }
 
       // 새로운 통일된 응답 형식 처리
       if (responseData.success !== undefined) {

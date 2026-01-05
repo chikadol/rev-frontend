@@ -1,13 +1,15 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback, memo } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { apiClient } from '../lib/api';
 import type { Thread, Board, PageResponse } from '../types';
+import { debounce } from '../utils/performance';
 
-export default function BoardPage() {
+const BoardPage = memo(function BoardPage() {
   const { boardId } = useParams<{ boardId: string }>();
   const [board, setBoard] = useState<Board | null>(null);
   const [threads, setThreads] = useState<PageResponse<Thread> | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [page, setPage] = useState(0);
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [searchKeyword, setSearchKeyword] = useState('');
@@ -16,7 +18,12 @@ export default function BoardPage() {
   useEffect(() => {
     if (!boardId) return;
     
-    Promise.all([
+    setLoading(true);
+    setError(null);
+    
+    // 게시판 정보와 게시글 목록을 독립적으로 로드
+    // 게시판 정보는 필수, 게시글 목록은 실패해도 게시판은 표시
+    Promise.allSettled([
       apiClient.getBoard(boardId),
       apiClient.getThreads(
         boardId, 
@@ -26,11 +33,35 @@ export default function BoardPage() {
         searchKeyword || undefined
       )
     ])
-      .then(([boardData, threadsData]) => {
-        setBoard(boardData);
-        setThreads(threadsData);
+      .then(([boardResult, threadsResult]) => {
+        // 게시판 정보 처리
+        if (boardResult.status === 'fulfilled') {
+          console.log('Board data:', boardResult.value);
+          setBoard(boardResult.value);
+        } else {
+          console.error('게시판 로드 실패:', boardResult.reason);
+          setError(boardResult.reason?.message || '게시판을 불러오는 중 오류가 발생했습니다.');
+          setBoard(null);
+        }
+        
+        // 게시글 목록 처리 (실패해도 게시판은 표시)
+        if (threadsResult.status === 'fulfilled') {
+          console.log('Threads data:', threadsResult.value);
+          setThreads(threadsResult.value);
+        } else {
+          console.error('게시글 목록 로드 실패:', threadsResult.reason);
+          // 게시글 목록 실패는 에러로 표시하지 않고 빈 목록으로 처리
+          setThreads({
+            content: [],
+            totalElements: 0,
+            totalPages: 0,
+            number: 0,
+            size: 20,
+            first: true,
+            last: true
+          });
+        }
       })
-      .catch(console.error)
       .finally(() => setLoading(false));
   }, [boardId, page, selectedTags, searchKeyword]);
 
@@ -60,15 +91,46 @@ export default function BoardPage() {
     );
   }
 
-  if (!board || !threads) {
+  if (error) {
+    return (
+      <div className="card" style={{ textAlign: 'center', padding: 'var(--spacing-2xl)' }}>
+        <ErrorMessage error={error} variant="full" />
+        <button 
+          onClick={() => window.location.reload()} 
+          className="btn btn-primary"
+          style={{ marginTop: 'var(--spacing-md)' }}
+        >
+          새로고침
+        </button>
+      </div>
+    );
+  }
+
+  if (!board) {
     return (
       <div className="card" style={{ textAlign: 'center', padding: 'var(--spacing-2xl)' }}>
         <p style={{ color: 'var(--color-text-secondary)', fontSize: '1.125rem' }}>
           게시판을 찾을 수 없습니다.
         </p>
+        {boardId && (
+          <p style={{ color: 'var(--color-text-tertiary)', fontSize: '0.875rem', marginTop: 'var(--spacing-sm)' }}>
+            게시판 ID: {boardId}
+          </p>
+        )}
       </div>
     );
   }
+  
+  // threads가 없으면 빈 목록으로 초기화
+  const displayThreads = threads || {
+    content: [],
+    totalElements: 0,
+    totalPages: 0,
+    number: 0,
+    size: 20,
+    first: true,
+    last: true
+  };
 
   return (
     <div>
@@ -247,7 +309,7 @@ export default function BoardPage() {
         overflow: 'hidden',
         border: '1px solid var(--color-border-light)'
       }}>
-        {threads.content.length === 0 ? (
+        {displayThreads.content.length === 0 ? (
           <div style={{ 
             padding: 'var(--spacing-3xl)', 
             textAlign: 'center',
@@ -262,14 +324,14 @@ export default function BoardPage() {
           </div>
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column' }}>
-            {threads.content.map((thread, index) => (
+            {displayThreads.content.map((thread, index) => (
               <Link
                 key={thread.id}
                 to={`/threads/${thread.id}`}
                 style={{
                   display: 'block',
                   padding: 'var(--spacing-xl)',
-                  borderBottom: index < threads.content.length - 1 ? '1px solid var(--color-border-light)' : 'none',
+                  borderBottom: index < displayThreads.content.length - 1 ? '1px solid var(--color-border-light)' : 'none',
                   textDecoration: 'none',
                   color: 'inherit',
                   transition: 'all var(--transition-base)',
@@ -353,7 +415,7 @@ export default function BoardPage() {
         )}
       </div>
 
-      {threads.totalPages > 1 && (
+      {displayThreads.totalPages > 1 && (
         <div style={{ 
           marginTop: 'var(--spacing-xl)', 
           display: 'flex', 
@@ -373,11 +435,11 @@ export default function BoardPage() {
             color: 'var(--color-text-secondary)',
             fontSize: '0.9375rem'
           }}>
-            {page + 1} / {threads.totalPages}
+            {page + 1} / {displayThreads.totalPages}
           </span>
           <button
-            onClick={() => setPage(p => Math.min(threads.totalPages - 1, p + 1))}
-            disabled={page >= threads.totalPages - 1}
+            onClick={() => setPage(p => Math.min(displayThreads.totalPages - 1, p + 1))}
+            disabled={page >= displayThreads.totalPages - 1}
             className="btn btn-secondary"
           >
             다음
@@ -386,4 +448,6 @@ export default function BoardPage() {
       )}
     </div>
   );
-}
+});
+
+export default BoardPage;

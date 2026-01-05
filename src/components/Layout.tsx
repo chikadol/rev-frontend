@@ -1,5 +1,5 @@
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState, useMemo, memo } from 'react';
 import { apiClient } from '../lib/api';
 import { useAuth } from '../contexts/AuthContext';
 import '../index.css';
@@ -8,7 +8,7 @@ interface LayoutProps {
   children: React.ReactNode;
 }
 
-export default function Layout({ children }: LayoutProps) {
+const Layout = memo(function Layout({ children }: LayoutProps) {
   const navigate = useNavigate();
   const location = useLocation();
   const { isAuthenticated, user, logout, loading: authLoading } = useAuth();
@@ -263,4 +263,6 @@ export default function Layout({ children }: LayoutProps) {
       </footer>
     </div>
   );
-}
+});
+
+export default Layout;

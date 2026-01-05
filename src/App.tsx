@@ -1,30 +1,39 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { lazy, Suspense } from 'react';
 import Layout from './components/Layout';
-import Home from './pages/Home';
-import Login from './pages/Login';
-import Register from './pages/Register';
-import BoardPage from './pages/BoardPage';
-import CreateBoardPage from './pages/CreateBoardPage';
-import ThreadDetailPage from './pages/ThreadDetailPage';
-import CreateThreadPage from './pages/CreateThreadPage';
-import MePage from './pages/MePage';
-import NotificationsPage from './pages/NotificationsPage';
-import PerformancesPage from './pages/PerformancesPage';
-import PerformanceDetailPage from './pages/PerformanceDetailPage';
-import MyTicketsPage from './pages/MyTicketsPage';
-import PaymentPage from './pages/PaymentPage';
-import PaymentCallbackPage from './pages/PaymentCallbackPage';
-import OAuthCallback from './pages/OAuthCallback';
-import Landing from './pages/Landing';
-import IdolList from './pages/IdolList';
-import IdolDetail from './pages/IdolDetail';
-import CreatePerformancePage from './pages/CreatePerformancePage';
-import RequestBoardPage from './pages/RequestBoardPage';
-import AdminUsersPage from './pages/AdminUsersPage';
+import LoadingSpinner from './components/LoadingSpinner';
+import { useAuth } from './contexts/AuthContext';
 import './App.css';
 
-import { useAuth } from './contexts/AuthContext';
-import LoadingSpinner from './components/LoadingSpinner';
+// 코드 스플리팅: 페이지 컴포넌트들을 동적으로 로드
+const Landing = lazy(() => import('./pages/Landing'));
+const Login = lazy(() => import('./pages/Login'));
+const Register = lazy(() => import('./pages/Register'));
+const Home = lazy(() => import('./pages/Home'));
+const BoardPage = lazy(() => import('./pages/BoardPage'));
+const CreateBoardPage = lazy(() => import('./pages/CreateBoardPage'));
+const ThreadDetailPage = lazy(() => import('./pages/ThreadDetailPage'));
+const CreateThreadPage = lazy(() => import('./pages/CreateThreadPage'));
+const MePage = lazy(() => import('./pages/MePage'));
+const NotificationsPage = lazy(() => import('./pages/NotificationsPage'));
+const PerformancesPage = lazy(() => import('./pages/PerformancesPage'));
+const PerformanceDetailPage = lazy(() => import('./pages/PerformanceDetailPage'));
+const MyTicketsPage = lazy(() => import('./pages/MyTicketsPage'));
+const PaymentPage = lazy(() => import('./pages/PaymentPage'));
+const PaymentCallbackPage = lazy(() => import('./pages/PaymentCallbackPage'));
+const OAuthCallback = lazy(() => import('./pages/OAuthCallback'));
+const IdolList = lazy(() => import('./pages/IdolList'));
+const IdolDetail = lazy(() => import('./pages/IdolDetail'));
+const CreatePerformancePage = lazy(() => import('./pages/CreatePerformancePage'));
+const RequestBoardPage = lazy(() => import('./pages/RequestBoardPage'));
+const AdminUsersPage = lazy(() => import('./pages/AdminUsersPage'));
+
+// Suspense 래퍼 컴포넌트
+const PageLoader = ({ children }: { children: React.ReactNode }) => (
+  <Suspense fallback={<LoadingSpinner fullScreen message="페이지를 불러오는 중..." />}>
+    {children}
+  </Suspense>
+);
 
 function PrivateRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated, loading } = useAuth();
@@ -63,63 +72,129 @@ function App() {
         <BrowserRouter>
             <Layout>
                 <Routes>
-                    <Route path="/login" element={<Login />} />
-                    <Route path="/register" element={<Register />} />
-                    <Route path="/" element={<Landing />} />
-                    <Route path="/boards" element={<Home />} />
+                    <Route path="/login" element={
+                        <PageLoader>
+                            <Login />
+                        </PageLoader>
+                    } />
+                    <Route path="/register" element={
+                        <PageLoader>
+                            <Register />
+                        </PageLoader>
+                    } />
+                    <Route path="/" element={
+                        <PageLoader>
+                            <Landing />
+                        </PageLoader>
+                    } />
+                    <Route path="/boards" element={
+                        <PageLoader>
+                            <Home />
+                        </PageLoader>
+                    } />
                     <Route path="/boards/new" element={
                         <PrivateRoute>
-                            <CreateBoardPage />
+                            <PageLoader>
+                                <CreateBoardPage />
+                            </PageLoader>
                         </PrivateRoute>
                     } />
                     <Route path="/boards/request" element={
                         <PrivateRoute>
-                            <RequestBoardPage />
+                            <PageLoader>
+                                <RequestBoardPage />
+                            </PageLoader>
                         </PrivateRoute>
                     } />
-                    <Route path="/boards/:boardId" element={<BoardPage />} />
+                    <Route path="/boards/:boardId" element={
+                        <PageLoader>
+                            <BoardPage />
+                        </PageLoader>
+                    } />
                     <Route path="/boards/:boardId/threads/new" element={
                         <PrivateRoute>
-                            <CreateThreadPage />
+                            <PageLoader>
+                                <CreateThreadPage />
+                            </PageLoader>
                         </PrivateRoute>
                     } />
-                    <Route path="/threads/:threadId" element={<ThreadDetailPage />} />
+                    <Route path="/threads/:threadId" element={
+                        <PageLoader>
+                            <ThreadDetailPage />
+                        </PageLoader>
+                    } />
                     <Route path="/me" element={
                         <PrivateRoute>
-                            <MePage />
+                            <PageLoader>
+                                <MePage />
+                            </PageLoader>
                         </PrivateRoute>
                     } />
                     <Route path="/notifications" element={
                         <PrivateRoute>
-                            <NotificationsPage />
+                            <PageLoader>
+                                <NotificationsPage />
+                            </PageLoader>
                         </PrivateRoute>
                     } />
-                    <Route path="/performances" element={<PerformancesPage />} />
+                    <Route path="/performances" element={
+                        <PageLoader>
+                            <PerformancesPage />
+                        </PageLoader>
+                    } />
                     <Route path="/performances/new" element={
                         <PrivateRoute>
-                            <CreatePerformancePage />
+                            <PageLoader>
+                                <CreatePerformancePage />
+                            </PageLoader>
                         </PrivateRoute>
                     } />
-                    <Route path="/performances/:id" element={<PerformanceDetailPage />} />
+                    <Route path="/performances/:id" element={
+                        <PageLoader>
+                            <PerformanceDetailPage />
+                        </PageLoader>
+                    } />
                     <Route path="/my-tickets" element={
                         <PrivateRoute>
-                            <MyTicketsPage />
+                            <PageLoader>
+                                <MyTicketsPage />
+                            </PageLoader>
                         </PrivateRoute>
                     } />
                     <Route path="/tickets/:ticketId/payment" element={
                         <PrivateRoute>
-                            <PaymentPage />
+                            <PageLoader>
+                                <PaymentPage />
+                            </PageLoader>
                         </PrivateRoute>
                     } />
-                    <Route path="/payment/callback" element={<PaymentCallbackPage />} />
-                    <Route path="/idols" element={<IdolList />} />
-                    <Route path="/idols/:idolId" element={<IdolDetail />} />
+                    <Route path="/payment/callback" element={
+                        <PageLoader>
+                            <PaymentCallbackPage />
+                        </PageLoader>
+                    } />
+                    <Route path="/idols" element={
+                        <PageLoader>
+                            <IdolList />
+                        </PageLoader>
+                    } />
+                    <Route path="/idols/:idolId" element={
+                        <PageLoader>
+                            <IdolDetail />
+                        </PageLoader>
+                    } />
                     <Route path="/admin/users" element={
                         <AdminRoute>
-                            <AdminUsersPage />
+                            <PageLoader>
+                                <AdminUsersPage />
+                            </PageLoader>
                         </AdminRoute>
                     } />
-                    <Route path="/auth/callback" element={<OAuthCallback />} />
+                    <Route path="/auth/callback" element={
+                        <PageLoader>
+                            <OAuthCallback />
+                        </PageLoader>
+                    } />
                 </Routes>
             </Layout>
         </BrowserRouter>
