@@ -21,7 +21,7 @@ export default function Login() {
             console.log("로그인 성공:", data);
             alert("로그인 성공!");
             
-            // TODO: 메인 페이지로 리다이렉트
+            // 메인 페이지로 리다이렉트
             window.location.href = "/";
         } catch (err: any) {
             console.error("로그인 실패:", err);
