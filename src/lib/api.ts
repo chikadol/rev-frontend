@@ -324,7 +324,7 @@ class ApiClient {
   }
 
   async getThread(threadId: string): Promise<ThreadDetail> {
-    return this.request<ThreadDetail>(`/api/threads/${threadId}`);
+    return this.request<ThreadDetail>(`/api/threads/detail/${threadId}`);
   }
 
   async createThread(
